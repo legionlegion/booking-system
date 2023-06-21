@@ -4,7 +4,6 @@ import Homepage from './Homepage';
 import Navbar from './Navbar';
 import BookingManagement from './BookingManagement';
 import RegisterPage from './Register';
-import MyComponent from './Test';
 
 // Created context
 export const UserContext = createContext();
@@ -54,10 +53,6 @@ function App() {
           <Route
             path="/register"
             element={<RegisterPage />}
-          />
-          <Route
-            path="/test"
-            element={<MyComponent />}
           />
         </Routes>
       </div>
