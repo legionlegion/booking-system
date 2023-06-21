@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import Input from "./FormInput";
 import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const RegisterPage = ({handleLogin}) => {
+const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent form submission
@@ -37,7 +39,8 @@ const RegisterPage = ({handleLogin}) => {
         if (data.error) {
           alert('Invalid username or password');
         } else {
-          handleLogin(data.access_token);
+          alert("Success");
+          navigate("/");
         }
       })
       .catch(error => {
