@@ -1,24 +1,29 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from './App';
+import { Button } from "@mui/material";
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 
 const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
-  const { jwtToken, username } = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  const [updated, setUpdated] = useState(false);
 
   const navigate = useNavigate();
 
   // Hook
   useEffect(() => {
-    if (jwtToken === "") {
+    console.log('isAdmin: ', user.isAdmin); // undefined
+    if (user.jwtToken === "") {
       console.log("NO JWT TOKEN")
       navigate("/");
       return
     }
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
-    headers.append("Authorization", "Bearer " + jwtToken);
-    headers.append("Username", username);
+    headers.append("Authorization", "Bearer " + user.jwtToken);
+    headers.append("Username", user.username);
 
     const requestOptions = {
       method: "GET",
@@ -29,13 +34,77 @@ const BookingManagement = () => {
       .then((response) => response.json())
       .then((data) => {
         setBookings(data);
-
+        setUpdated(false);
         console.log("Bookings: ", data);
       })
       .catch(err => {
         console.log(err);
       })
-  }, [jwtToken, navigate])
+  }, [user.jwtToken, updated, navigate])
+
+  const approveBooking = useCallback((booking) => {
+    if (user.jwtToken === "") {
+      console.log("NO JWT TOKEN")
+      navigate("/");
+      return
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", "Bearer " + user.jwtToken);
+
+    let method = "PUT";
+
+    const requestBody = booking;
+
+    let requestOptions = {
+      body: JSON.stringify(requestBody),
+      method: method,
+      headers: headers,
+      credentials: "include",
+    }
+
+    fetch(`/admin/approve-booking`, requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        setUpdated(true);
+        console.log("Approved: ", data);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  })
+
+  const deleteBooking = useCallback((booking) => {
+    if (user.jwtToken === "") {
+      console.log("NO JWT TOKEN")
+      navigate("/");
+      return
+    }
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", "Bearer " + user.jwtToken);
+
+    let method = "PUT";
+
+    const requestBody = booking;
+
+    let requestOptions = {
+      body: JSON.stringify(requestBody),
+      method: method,
+      headers: headers,
+      credentials: "include",
+    }
+
+    fetch(`/admin/delete-booking`, requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        setUpdated(true);
+        console.log("Deleted: ", data);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  })
 
   return (
     <Fragment>
@@ -85,6 +154,17 @@ const BookingManagement = () => {
                   })}</td>
                   <td>{booking.facility}</td>
                   <td>{booking.purpose}</td>
+                  <td>
+                    {user.isAdmin
+                      ?
+                      <Button variant="contained" color="success" onClick={() => approveBooking(booking)}>
+                        <DoneIcon></DoneIcon>
+                      </Button>
+                      : null}
+                    <Button variant="outlined" color="error" onClick={() => deleteBooking(booking)}>
+                      <CloseIcon></CloseIcon>
+                    </Button>
+                  </td>
                 </tr>
               )) : null
             }

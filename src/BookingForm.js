@@ -8,7 +8,7 @@ import { UserContext } from "./App";
 import { useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
-    const { jwtToken, username } = useContext(UserContext);
+    const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
     const handleSubmit = (newName, newStartDate, newEndDate, newUnitNumber, newStartTime, newEndTime, newPurpose) => {
@@ -43,7 +43,7 @@ const BookingForm = () => {
             start_time: formattedStartDateWithoutMs,
             end_time: formattedEndDateWithoutMs,
             purpose: newPurpose,
-            username: username,
+            username: user.username,
             facility: "MPSH",
         }
 
@@ -51,7 +51,7 @@ const BookingForm = () => {
         // validation passed, submit
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
+        headers.append("Authorization", "Bearer " + user.jwtToken);
 
         // adding movie
         let method = "PUT";
@@ -65,7 +65,7 @@ const BookingForm = () => {
             credentials: "include",
         }
 
-        fetch(`/admin/addBooking`, requestOptions)
+        fetch(`/admin/add-booking`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

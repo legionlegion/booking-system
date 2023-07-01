@@ -8,7 +8,7 @@ function Navbar() {
   const [password, setPassword] = useState("");
   const [tickInterval, setTickInterval] = useState();
 
-  const { jwtToken, setJwtToken, username, setUsername, isLoading, setLoading } = useContext(UserContext);
+  const { user, setUser, setLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
   const toggleRefresh = useCallback((status) => {
@@ -26,7 +26,10 @@ function Navbar() {
           })
           .then((data) => {
             if (data.access_token) {
-              setJwtToken(data.access_token);
+              setUser({
+                ...user,
+                jwtToken: data.access_token,
+              })
             }
           })
           .catch(error => {
@@ -42,7 +45,7 @@ function Navbar() {
   }, [tickInterval])
 
   useEffect(() => {
-    if (jwtToken === "") {
+    if (user.jwtToken === "") {
       const requestOptions = {
         method: "GET",
         credentials: "include",
@@ -54,13 +57,12 @@ function Navbar() {
         })
         .then((data) => {
           if (data.access_token) {
-            setJwtToken(data.access_token);
             const decodedData = jwtDecode(data.access_token);
-            setUsername(decodedData.username);
-            console.log("ACCESS TOKEN ON RE-RENDER:", data.access_token)
-            console.log("USERNAME ON RE-RENDER:", decodedData.username)
-            setLoading(false);
-            toggleRefresh(true); // start refresh token countdown
+            setUser({
+              jwtToken: data.access_token,
+              username: decodedData.username,
+              isAdmin: decodedData.isAdmin,
+            })
           }
         })
         .catch(error => {
@@ -68,7 +70,16 @@ function Navbar() {
           setLoading(false);
         })
     }
-  }, [jwtToken, toggleRefresh])
+  }, [user, toggleRefresh])
+
+  // Use an effect to navigate when the user info is updated
+  // due to async nature of set state we only use 1 set state
+  useEffect(() => {
+    toggleRefresh(true);
+    setLoading(false);
+    console.log("Navigating to booking management, user details: ", user);
+    navigate('/booking-management');
+  }, [user]);
 
   const handleSubmit = (event) => {
     event.preventDefault(); // Prevent form submission
@@ -101,16 +112,12 @@ function Navbar() {
         if (data.error) {
           alert('Invalid username or password');
         } else {
-          setJwtToken(data.access_token);
           const decodedData = jwtDecode(data.access_token);
-          setUsername(decodedData.username);
-          console.log("Decoded data: ", decodedData)
-          console.log("Username: ", jwtDecode(data.access_token).username);
-          console.log("Is admin: ", jwtDecode(data.access_token).isAdmin);
-          // handleLogin(data.access_token);
-          toggleRefresh(true); // start refresh token countdown
-          setLoading(false);
-          navigate('/booking-management');
+          setUser({
+            jwtToken: data.access_token,
+            username: decodedData.username,
+            isAdmin: decodedData.isAdmin,
+          })
         }
       })
       .catch(error => {
@@ -130,7 +137,11 @@ function Navbar() {
         console.log("Error logging out", error);
       })
       .finally(() => {
-        setJwtToken("");
+        setUser({
+          username: "",
+          jwtToken: "",
+          isAdmin: false,
+        })
         toggleRefresh(false); // stop refresh token countdown
       })
     navigate('/');
@@ -155,14 +166,14 @@ function Navbar() {
             Book4U
           </div>
           {/* "Manage Bookings" link that only displays if jwtToken is not null or empty */}
-          {jwtToken !== "" && (
+          {user.jwtToken !== "" && (
             <div onClick={() => navigate('/booking-management')}
               style={{ cursor: 'pointer' }}>
               Manage Bookings
             </div>
           )}
         </div>
-        {jwtToken === "" ? (
+        {user.jwtToken === "" ? (
           <form className="d-flex" role="search" onSubmit={handleSubmit}>
             <input
               className="form-control me-2"
@@ -189,7 +200,7 @@ function Navbar() {
           </form>
         ) : (
           <div>
-            User: {username}
+            User: {user.username}
             <button className="btn btn-outline-info" type="button" onClick={handleLogout}>
               Logout
             </button>

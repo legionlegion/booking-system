@@ -10,30 +10,31 @@ export const UserContext = createContext();
 
 // That component separates user context from app, so we don't pollute it
 function UserContextProvider({ children }) {
-  const [username, setUsername] = useState("");
-  const [jwtToken, setJwtToken] = useState("");
-  const [isLoading, setLoading] = useState(true);
+  const [user, setUser] = useState({
+    jwtToken: "",
+    username: "",
+    isAdmin: false
+  });
+  const [isLoading, setLoading] = useState(false);
 
   // We want to remember value reference, otherwise we will have unnecessary rerenders
   const value = useMemo(() => {
     return {
-      username,
-      setUsername,
-      jwtToken,
-      setJwtToken,
+      user,
+      setUser,
       isLoading,
       setLoading,
     };
-  }, [username, setUsername, jwtToken, setJwtToken, isLoading, setLoading]);
+  }, [user, setUser, isLoading, setLoading]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 function App() {
-  const { jwtToken, isLoading } = useContext(UserContext);
+  const { user, isLoading } = useContext(UserContext);
   useEffect(() => {
-    console.log("App is loading: ", isLoading)
-    console.log("JWT token: ", jwtToken)
+    console.log("App is loading: ", user.isAdmin);
+    console.log("JWT token: ", user.jwtToken);
   }, [isLoading])
 
   return (
@@ -46,7 +47,7 @@ function App() {
             path="/booking-management"
             element={isLoading
               ? <div>Loading...</div> // Show a loading screen while fetching the token
-              : jwtToken !== ""
+              : user.jwtToken !== ""
                 ? <BookingManagement />
                 : <Navigate to="/" replace />}
           />
