@@ -1,6 +1,8 @@
 import React, { useContext, useState } from "react";
 import FormInput from "./FormInput";
 import TimePicker from "./Timepicker";
+import dayjs from 'dayjs';
+import { Grid, TextField } from '@mui/material';
 import { Input } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -187,48 +189,56 @@ const BookingForm = () => {
                 onChange={(e) => handleChange(e, 'unitNumber')}
             >
             </FormInput>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                    label="Start date of requested booking"
-                    type="date"
-                    id="startDate"
-                    autoComplete="date"
-                    value={formValues.startDate.value}
-                    error={formValues.startDate.error}
-                    errorMessage={formValues.startDate.errorMessage}
-                    onChange={(e) => handleChange(e, 'startDate')}
-                >
-                </DatePicker>
-            </LocalizationProvider>
-            <TimePicker
-                title="Start Time"
-                id="start-time"
-                value={formValues.startTime.value}
-                error={formValues.startTime.error}
-                errorMessage={formValues.startTime.errorMessage}
-                onChange={(e) => handleChange(e, 'startTime')}
-            />
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                    label="End date of requested booking"
-                    type="date"
-                    id="endDate"
-                    autoComplete="date"
-                    value={formValues.endDate.value}
-                    error={formValues.endDate.error}
-                    errorMessage={formValues.endDate.errorMessage}
-                    onChange={(e) => handleChange(e, 'endDate')}
-                >
-                </DatePicker>
-            </LocalizationProvider>
-            <TimePicker
-                title="End Time"
-                id="end-time"
-                value={formValues.endTime.value}
-                error={formValues.endTime.error}
-                errorMessage={formValues.endTime.errorMessage}
-                onChange={(e) => handleChange(e, 'endTime')}
-            />
+            <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Start date of requested booking"
+                            value={formValues.startDate.value}
+                            onChange={(e) => handleChange(e, 'startDate')}
+                            error={formValues.startDate.error}
+                            helperText={formValues.startDate.errorMessage}
+                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
+                        />
+                    </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                            label="Start Time"
+                            value={formValues.startTime.value}
+                            onChange={(e) => handleChange(e, 'startTime')}
+                            error={formValues.startTime.error}
+                            helperText={formValues.startTime.errorMessage}
+                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
+                        />
+                    </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="End date of requested booking"
+                            value={formValues.endDate.value}
+                            onChange={(e) => handleChange(e, 'endDate')}
+                            error={formValues.endDate.error}
+                            helperText={formValues.endDate.errorMessage}
+                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
+                        />
+                    </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                            label="End Time"
+                            value={formValues.endTime.value}
+                            onChange={(e) => handleChange(e, 'endTime')}
+                            error={formValues.endTime.error}
+                            helperText={formValues.endTime.errorMessage}
+                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
+                        />
+                    </LocalizationProvider>
+                </Grid>
+            </Grid>
             <FormInput
                 title="Purpose"
                 type="text"

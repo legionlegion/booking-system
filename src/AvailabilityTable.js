@@ -1,12 +1,13 @@
-import React, { forwardRef, useEffect, useState } from 'react';
-import './AvailabilityTable.css'; // Import your CSS file
+import React, { useEffect, useState } from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
-const AvailabilityTable = forwardRef((props, ref) => {
+const AvailabilityTable = () => {
   const columns = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const [rows, setRows] = useState(new Array(7).fill().map(() => new Array(24).fill(0)));
   const currentDate = new Date();
   const currentDayOfWeek = currentDate.getDay();
   const daysUntilMonday = (currentDayOfWeek + 6) % 7; // Days between current day and next Monday
+  // Sunday is 6 days away, Monday is 0 days away, so that rows[0] is Mon and rows[6] is Sun
 
   useEffect(() => {
     const headers = new Headers();
@@ -21,6 +22,7 @@ const AvailabilityTable = forwardRef((props, ref) => {
       .then((response) => response.json())
       .then((data) => {
         let newRows = JSON.parse(JSON.stringify(rows));
+
         data.forEach(entry => {
           fillArray(entry.start_time, entry.end_time, newRows);
         });
@@ -60,29 +62,38 @@ const AvailabilityTable = forwardRef((props, ref) => {
   }
 
   return (
-    <table className="availability-table">
-      <thead>
-        <tr>
-          <th>Date</th> {/* Moved Date column to the left */}
-          <th>Day / Time</th>
-          {Array.from(Array(24).keys()).map(hour =>
-            <th key={hour}>{hour.toString().padStart(2, '0')}:00</th>
-          )}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((day, i) =>
-          <tr key={i}>
-            <td>{new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</td> {/* Date column */}
-            <td>{columns[i]}</td>
-            {day.map((hour, j) =>
-              <td key={j} className={hour === 1 ? "booked" : "available"}></td>
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="availability table">
+        <TableHead>
+          <TableRow>
+            <TableCell size="small">Date</TableCell>
+            <TableCell size="small">Day / Time</TableCell>
+            {Array.from(Array(24).keys()).map(hour =>
+              <TableCell size="small" key={hour}>{hour.toString().padStart(2, '0')}:00</TableCell>
             )}
-          </tr>
-        )}
-      </tbody>
-    </table>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((day, i) =>
+            <TableRow key={i}>
+              <TableCell size="small">{new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
+              <TableCell size="small">{columns[i]}</TableCell>
+              {day.map((hour, j) =>
+                <TableCell key={j}
+                  size="small"
+                  sx={{
+                    backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
+                    textAlign: 'center',
+                    fontSize: '10px'
+                  }}>
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
-});
+};
 
 export default AvailabilityTable;

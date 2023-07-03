@@ -2,6 +2,8 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './App';
 import jwtDecode from "jwt-decode";
+import { AppBar, Toolbar, IconButton, Typography, Button, TextField, Box } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function Navbar() {
   const [usernameLogin, setUsernameLogin] = useState("");
@@ -152,62 +154,61 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg" style={{ backgroundColor: 'teal' }}>
-      <div className="container-fluid">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+    <AppBar position="static" color="primary">
+      <Toolbar>
+        <IconButton edge="start" color="inherit" sx={{ marginRight: '15px' }}>
           <img
             src={`${process.env.PUBLIC_URL}/orca.png`}
             alt="Orca logo"
-            style={{ marginRight: '25px', width: '50px', height: '50px' }}
+            width='50px'
+            height='50px'
           />
-          <div className="navbar-brand"
-            onClick={() => navigate('/')}
-            style={{ fontSize: '30px', fontWeight: 'bold', cursor: 'pointer' }}>
-            Book4U
-          </div>
-          {/* "Manage Bookings" link that only displays if jwtToken is not null or empty */}
-          {user.jwtToken !== "" && (
-            <div onClick={() => navigate('/booking-management')}
-              style={{ cursor: 'pointer' }}>
-              Manage Bookings
-            </div>
-          )}
-        </div>
+        </IconButton>
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', cursor: 'pointer' }} onClick={() => navigate('/')}>
+          Book4U
+        </Typography>
+        {user.jwtToken !== "" && (
+          <Button color="inherit" onClick={() => navigate('/booking-management')}>
+            Manage Bookings
+          </Button>
+        )}
         {user.jwtToken === "" ? (
-          <form className="d-flex" role="search" onSubmit={handleSubmit}>
-            <input
-              className="form-control me-2"
-              type="text"
+          <form onSubmit={handleSubmit}>
+            <TextField
+              variant="standard"
               placeholder="Username"
-              aria-label="Username"
               value={usernameLogin}
               onChange={(event) => setUsernameLogin(event.target.value)}
+              sx={{ marginRight: '10px' }}
             />
-            <input
-              className="form-control me-2"
+            <TextField
+              variant="standard"
               type="password"
               placeholder="Password"
-              aria-label="Password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              sx={{ marginRight: '10px' }}
             />
-            <button className="btn btn-outline-info me-2" type="submit">
+            <Button variant="contained" color="secondary" type="submit" sx={{ marginRight: '10px' }}>
               Login
-            </button>
-            <button className="btn btn-outline-info" type="button" onClick={handleRegister}>
+            </Button>
+            <Button variant="contained" color="secondary" type="button" onClick={handleRegister}>
               Register
-            </button>
+            </Button>
           </form>
         ) : (
-          <div>
-            User: {user.username}
-            <button className="btn btn-outline-info" type="button" onClick={handleLogout}>
+          <Box display="flex" alignItems="center" sx={{ marginRight: '15px' }}>
+            <AccountCircleIcon />
+            <Typography variant="subtitle1">
+              User: {user.username}
+            </Typography>
+            <Button variant="contained" color="secondary" type="button" onClick={handleLogout} sx={{ marginLeft: '15px'}}>
               Logout
-            </button>
-          </div>
+            </Button>
+          </Box>
         )}
-      </div>
-    </nav>
+      </Toolbar>
+    </AppBar>
   );
 }
 
