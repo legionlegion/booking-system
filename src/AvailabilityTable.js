@@ -1,13 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Button, Icon, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { ArrowLeft, ArrowRight } from '@mui/icons-material';
 
 const AvailabilityTable = () => {
   const columns = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const [rows, setRows] = useState(new Array(7).fill().map(() => new Array(24).fill(0)));
+  const [currentWeekRows, setCurrentWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill(0)));
+  const [nextWeekRows, setNextWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill(0)));
+  const [currentWeekVisible, setCurrentWeekVisible] = useState(true);
+
   const currentDate = new Date();
   const currentDayOfWeek = currentDate.getDay();
+
+  let currentWeekStart = new Date();
+  currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // set to Monday of this week
+  currentWeekStart.setHours(0, 0, 0, 0); // set time to 00:00:00.000
+
+  let nextWeekStart = new Date(currentWeekStart);
+  nextWeekStart.setDate(nextWeekStart.getDate() + 7); // set to Monday of next week
+  nextWeekStart.setHours(0, 0, 0, 0); // set time to 00:00:00.000
+
   const daysUntilMonday = (currentDayOfWeek + 6) % 7; // Days between current day and next Monday
   // Sunday is 6 days away, Monday is 0 days away, so that rows[0] is Mon and rows[6] is Sun
+
+  const showNextWeek = () => {
+    setCurrentWeekVisible(false);
+  };
+
+  const showCurrentWeek = () => {
+    setCurrentWeekVisible(true);
+  };
 
   useEffect(() => {
     const headers = new Headers();
@@ -22,29 +43,43 @@ const AvailabilityTable = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("DATA: ", data);
-        let newRows = JSON.parse(JSON.stringify(rows));
-        
+
         data.forEach(entry => {
-          fillArray(entry.start_time, entry.end_time, newRows);
+          fillArray(entry.start_time, entry.end_time, currentWeekRows, nextWeekRows);
         });
-        console.log("New rows: ", newRows);
-        setRows(newRows);
+        console.log("Current week rows: ", currentWeekRows);
+        console.log("Next week rows: ", nextWeekRows);
+        let newCurr = JSON.parse(JSON.stringify(currentWeekRows));
+        let newNext = JSON.parse(JSON.stringify(nextWeekRows));
+        setCurrentWeekRows(newCurr);
+        setNextWeekRows(newNext);
       })
       .catch(err => {
         console.log(err);
       })
   }, [])
 
-  function fillArray(start, end, newRows) {
+  function fillArray(start, end, currentWeekRows, nextWeekRows) {
     let startDate = new Date(start);
     let endDate = new Date(end);
+    console.log("Start date: ", startDate);
+    console.log("Curr week start: ", currentWeekStart);
+    console.log("Next week start: ", nextWeekStart);
+    // decide which array to fill
+    let newRows;
+    if (startDate >= currentWeekStart && startDate < nextWeekStart) {
+      newRows = currentWeekRows;
+    } else if (startDate >= nextWeekStart) {
+      newRows = nextWeekRows;
+    } else {
+      return; // ignore dates outside current and next week
+    }
+
     // Get the starting and ending day and hour
     let startDay = startDate.getDay() - 1; // Adjusted to have Mon as 0, Tues as 1 etc
     let startHour = startDate.getHours();
-    console.log("Start day, hours: ", startDay, startHour)
     // Get the difference in hours
     let diffInHours = (endDate - startDate) / (1000 * 60 * 60);
-    console.log("Diff in hours: ", diffInHours);
     // Loop through the days and hours, updating the array
     let currentDay = startDay;
     let currentHour = startHour;
@@ -62,37 +97,65 @@ const AvailabilityTable = () => {
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="availability table">
-        <TableHead>
-          <TableRow>
-            <TableCell size="small">Date</TableCell>
-            <TableCell size="small">Day / Time</TableCell>
-            {Array.from(Array(24).keys()).map(hour =>
-              <TableCell size="small" key={hour}>{hour.toString().padStart(2, '0')}:00</TableCell>
-            )}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((day, i) =>
-            <TableRow key={i}>
-              <TableCell size="small">{new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
-              <TableCell size="small">{columns[i]}</TableCell>
-              {day.map((hour, j) =>
-                <TableCell key={j}
-                  size="small"
-                  sx={{
-                    backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
-                    textAlign: 'center',
-                    fontSize: '10px'
-                  }}>
-                </TableCell>
+    <>
+      <Button onClick={showCurrentWeek}>
+        <ArrowLeft />Previous Week
+      </Button>
+      <Button onClick={showNextWeek}>
+        Next Week<ArrowRight />
+      </Button>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="availability table">
+          <TableHead>
+            <TableRow>
+              <TableCell size="small">Date</TableCell>
+              <TableCell size="small">Day / Time</TableCell>
+              {Array.from(Array(24).keys()).map(hour =>
+                <TableCell size="small" key={hour}>{hour.toString().padStart(2, '0')}:00</TableCell>
               )}
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          {currentWeekVisible ?
+            <TableBody>
+              {currentWeekRows.map((day, i) =>
+                <TableRow key={i}>
+                  <TableCell size="small">{new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
+                  <TableCell size="small">{columns[i]}</TableCell>
+                  {day.map((hour, j) =>
+                    <TableCell key={j}
+                      size="small"
+                      sx={{
+                        backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
+                        textAlign: 'center',
+                        fontSize: '10px'
+                      }}>
+                    </TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+            :
+            <TableBody>
+              {nextWeekRows.map((day, i) =>
+                <TableRow key={i}>
+                  <TableCell size="small">{new Date(currentDate.getTime() + (i + 7 - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
+                  <TableCell size="small">{columns[i]}</TableCell>
+                  {day.map((hour, j) =>
+                    <TableCell key={j}
+                      size="small"
+                      sx={{
+                        backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
+                        textAlign: 'center',
+                        fontSize: '10px'
+                      }}>
+                    </TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>}
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 

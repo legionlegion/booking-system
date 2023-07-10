@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from './App';
-import { Button } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -141,124 +141,128 @@ const BookingManagement = () => {
 
   return (
     <Fragment>
-      <div className='bookings-container' style={{ margin: '15px' }}>
-        <h3>Existing Bookings</h3>
-        <table className='table'>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Name</th>
-              <th>Unit</th>
-              <th>Start Date</th>
-              <th>Start Time</th>
-              <th>End Date</th>
-              <th>End Time</th>
-              <th>Facility</th>
-              <th>Purpose</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              user.isAdmin && allBookings ? allBookings.map((booking, index) => (
-                <tr key={index}>
-                  <td>{booking.username}</td>
-                  <td>{booking.name}</td>
-                  <td>{booking.unit_number}</td>
-                  <td>{new Date(booking.start_date).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}</td>
-                  <td>{new Date(booking.start_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  })}</td>
-                  <td>{new Date(booking.end_date).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}</td>
-                  <td>{new Date(booking.end_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  })}</td>
-                  <td>{booking.facility}</td>
-                  <td>{booking.purpose}</td>
-                  <td>
-                    <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "approved")}>
-                      <CloseIcon></CloseIcon>
-                    </Button>
-                  </td>
-                </tr>
-              )) : null
-            }
-          </tbody>
-        </table>
-        <h3>Pending Bookings</h3>
-        <table className='table'>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Name</th>
-              <th>Unit</th>
-              <th>Start Date</th>
-              <th>Start Time</th>
-              <th>End Date</th>
-              <th>End Time</th>
-              <th>Facility</th>
-              <th>Purpose</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              bookings ? bookings.map((booking, index) => (
-                <tr key={index}>
-                  <td>{booking.username}</td>
-                  <td>{booking.name}</td>
-                  <td>{booking.unit_number}</td>
-                  <td>{new Date(booking.start_date).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}</td>
-                  <td>{new Date(booking.start_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  })}</td>
-                  <td>{new Date(booking.end_date).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}</td>
-                  <td>{new Date(booking.end_time).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  })}</td>
-                  <td>{booking.facility}</td>
-                  <td>{booking.purpose}</td>
-                  <td>
-                    {user.isAdmin
-                      ?
-                      <Button variant="contained" color="success" onClick={() => approveBooking(booking)}>
-                        <DoneIcon></DoneIcon>
+      <Grid container>
+        <Grid item xs={12}>
+          <h3>Existing Bookings</h3>
+          <table className='table'>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Unit</th>
+                <th>Start Date</th>
+                <th>Start Time</th>
+                <th>End Date</th>
+                <th>End Time</th>
+                <th>Facility</th>
+                <th>Purpose</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                user.isAdmin && allBookings ? allBookings.map((booking, index) => (
+                  <tr key={index}>
+                    <td>{booking.username}</td>
+                    <td>{booking.name}</td>
+                    <td>{booking.unit_number}</td>
+                    <td>{new Date(booking.start_date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}</td>
+                    <td>{new Date(booking.start_time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                    <td>{new Date(booking.end_date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}</td>
+                    <td>{new Date(booking.end_time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                    <td>{booking.facility}</td>
+                    <td>{booking.purpose}</td>
+                    <td>
+                      <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "approved")}>
+                        <CloseIcon></CloseIcon>
                       </Button>
-                      : null}
-                    <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "pending")}>
-                      <CloseIcon></CloseIcon>
-                    </Button>
-                  </td>
-                </tr>
-              )) : null
-            }
-          </tbody>
-        </table>
-      </div>
+                    </td>
+                  </tr>
+                )) : null
+              }
+            </tbody>
+          </table>
+        </Grid>
+        <Grid item xs={12}>
+          <h3>Pending Bookings</h3>
+          <table className='table'>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Unit</th>
+                <th>Start Date</th>
+                <th>Start Time</th>
+                <th>End Date</th>
+                <th>End Time</th>
+                <th>Facility</th>
+                <th>Purpose</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                bookings ? bookings.map((booking, index) => (
+                  <tr key={index}>
+                    <td>{booking.username}</td>
+                    <td>{booking.name}</td>
+                    <td>{booking.unit_number}</td>
+                    <td>{new Date(booking.start_date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}</td>
+                    <td>{new Date(booking.start_time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                    <td>{new Date(booking.end_date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}</td>
+                    <td>{new Date(booking.end_time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                    <td>{booking.facility}</td>
+                    <td>{booking.purpose}</td>
+                    <td>
+                      {user.isAdmin
+                        ?
+                        <Button variant="contained" color="success" onClick={() => approveBooking(booking)}>
+                          <DoneIcon></DoneIcon>
+                        </Button>
+                        : null}
+                      <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "pending")}>
+                        <CloseIcon></CloseIcon>
+                      </Button>
+                    </td>
+                  </tr>
+                )) : null
+              }
+            </tbody>
+          </table>
+        </Grid>
+      </Grid>
     </Fragment>
   );
 }
