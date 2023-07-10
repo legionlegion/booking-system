@@ -4,7 +4,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
 import { forwardRef } from "react";
 
-const TimePicker = forwardRef((props, ref) => {
+const TimePicker = forwardRef((props) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MobileTimePicker
@@ -12,7 +12,12 @@ const TimePicker = forwardRef((props, ref) => {
         views={['hours']}
         className='form-control mb-3'
         onChange={props.onChange}
-        ref={ref}
+        slotProps={{
+          textField: {
+            error: props.error,
+            helperText: props.error ? props.helperText : ""
+          },
+        }}
       />
     </LocalizationProvider>
   );

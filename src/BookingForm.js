@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import FormInput from "./FormInput";
 import TimePicker from "./Timepicker";
 import dayjs from 'dayjs';
-import { Grid, TextField } from '@mui/material';
+import { Grid } from '@mui/material';
 import { Input } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -14,11 +14,20 @@ const BookingForm = () => {
     const navigate = useNavigate();
 
     const handleSubmit = (newName, newStartDate, newEndDate, newUnitNumber, newStartTime, newEndTime, newPurpose) => {
-        // Create Date objects from your inputs
+        // Create Date objects from inputs
         let startDate = new Date(newStartDate);
         let startTime = new Date(newStartTime);
         let endDate = new Date(newEndDate);
         let endTime = new Date(newEndTime);
+        let startDateString = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}T00:00:00Z`;
+        let endDateString = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}T00:00:00Z`;
+
+        console.log("Start date: ", startDate); // SG time GMT+8
+        console.log("Start time: ", startTime); // SG time GMT+8
+        console.log("Start date string: ", startDateString); // SG time GMT+8
+        console.log("End date string: ", endDateString); // SG time GMT+8
+        console.log("End date: ", endDate); // SG time GMT+8
+        console.log("End time:", endTime); // SG time GMT+8
 
         // Extract the hours and minutes from the time field
         let startHour = startTime.getHours();
@@ -36,11 +45,14 @@ const BookingForm = () => {
         let formattedEndDate = endDate.toISOString();
         let formattedStartDateWithoutMs = formattedStartDate.slice(0, -5) + 'Z'; // remove milliseconds
         let formattedEndDateWithoutMs = formattedEndDate.slice(0, -5) + 'Z'; // remove milliseconds
-
+        console.log("Start date: ", formattedStartDate); // GMT+0, 2023-07-10T19:00:00.000Z
+        console.log("Start time: ", formattedStartDateWithoutMs); // GMT+0 2023-07-10T19:00:00Z
+        console.log("End date: ", formattedEndDate); // GMT+0 2023-07-10T22:00:00.000Z
+        console.log("End time:", formattedEndDateWithoutMs); // GMT+0 2023-07-10T22:00:00Z
         let newBooking = {
             name: newName,
-            start_date: newStartDate,
-            end_date: newEndDate,
+            start_date: startDateString,
+            end_date: endDateString,
             unit_number: newUnitNumber,
             start_time: formattedStartDateWithoutMs,
             end_time: formattedEndDateWithoutMs,
@@ -74,7 +86,8 @@ const BookingForm = () => {
                     console.log("Err: ", data)
                     alert(data.message);
                 } else {
-                    navigate("/")
+                    alert("Booking submitted!");
+                    navigate("/booking-management")
                 }
             })
             .catch(err => {
@@ -95,7 +108,7 @@ const BookingForm = () => {
             errorMessage: "You must enter a unit number"
         },
         startDate: {
-            value: "",
+            value: null,
             error: false,
             errorMessage: "You must select a start date"
         },
@@ -105,7 +118,7 @@ const BookingForm = () => {
             errorMessage: "You must select a start time"
         },
         endDate: {
-            value: "",
+            value: null,
             error: false,
             errorMessage: "You must select an end date"
         },
@@ -123,27 +136,43 @@ const BookingForm = () => {
 
     const handleChange = (e, field) => {
         let value;
-        if (field === "startTime" || field === "endTime") {
-            // let date = new Date(e.$d);
-            // console.log("Start/end time: ", e);
-            // let isoDate = date.toISOString();
-            // let formattedDate = isoDate.slice(0, -5) + 'Z'; // remove miliseconds
-            // console.log("DATE: ", formattedDate);
-            value = e.format('YYYY-MM-DDTHH:mm:ssZ');
-        } else if (field === "startDate" || field === "endDate") {
-            value = e.format('YYYY-MM-DDTHH:mm:ssZ');
+        let error = false;
+        let errorMessage = "";
+
+        if (field === "startTime" || field === "endTime" || field === "startDate" || field === "endDate") {
+            value = e;
+            if (e) {
+                if (field === "endTime" && formValues.startTime.value && dayjs(e).isBefore(dayjs(formValues.startTime.value))) {
+                    error = true;
+                    errorMessage = "End time cannot be earlier than start time!";
+                }
+
+                if (field === "endDate" && formValues.startDate.value && dayjs(e).isBefore(dayjs(formValues.startDate.value))) {
+                    error = true;
+                    errorMessage = "End date cannot be earlier than start date!";
+                }
+            } else {
+                error = true;
+                errorMessage = formValues[field].errorMessage;
+            }
         } else {
             value = e.target.value;
+            if (!value) {
+                error = true;
+                errorMessage = formValues[field].errorMessage;
+            }
         }
-        console.log("value: ", value)
-        setFormValues({
+
+        let newFormValues = {
             ...formValues,
             [field]: {
-                ...formValues[field],
                 value: value,
-                error: value ? false : true,
+                error: error,
+                errorMessage: errorMessage
             }
-        });
+        };
+
+        setFormValues(newFormValues);
     };
 
     const handleFormSubmit = (e) => {
@@ -154,16 +183,17 @@ const BookingForm = () => {
         Object.keys(formValues).forEach((key) => {
             const field = formValues[key];
             if (!field.value) {
+                console.log("Error with form: ", key);
                 newFormValues[key].error = true;
                 isError = true;
             }
         });
+        setFormValues(newFormValues);
         if (!isError) {
             handleSubmit(formValues.name.value, formValues.startDate.value, formValues.endDate.value,
                 formValues.unitNumber.value, formValues.startTime.value, formValues.endTime.value, formValues.purpose.value);
         }
     };
-
 
     return (
         <form autoComplete='off' onSubmit={handleFormSubmit}>
@@ -193,12 +223,16 @@ const BookingForm = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                            label="Start date of requested booking"
+                            label="Start date"
                             value={formValues.startDate.value}
                             onChange={(e) => handleChange(e, 'startDate')}
-                            error={formValues.startDate.error}
-                            helperText={formValues.startDate.errorMessage}
-                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
+                            disablePast
+                            slotProps={{
+                                textField: {
+                                    error: formValues.startDate.error,
+                                    helperText: formValues.startDate.error ? formValues.startDate.errorMessage : ""
+                                }
+                            }}
                         />
                     </LocalizationProvider>
                 </Grid>
@@ -210,19 +244,22 @@ const BookingForm = () => {
                             onChange={(e) => handleChange(e, 'startTime')}
                             error={formValues.startTime.error}
                             helperText={formValues.startTime.errorMessage}
-                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
                         />
                     </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                            label="End date of requested booking"
+                            label="End date"
                             value={formValues.endDate.value}
                             onChange={(e) => handleChange(e, 'endDate')}
-                            error={formValues.endDate.error}
-                            helperText={formValues.endDate.errorMessage}
-                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
+                            disablePast
+                            slotProps={{
+                                textField: {
+                                    error: formValues.endDate.error,
+                                    helperText: formValues.endDate.error ? formValues.endDate.errorMessage : ""
+                                }
+                            }}
                         />
                     </LocalizationProvider>
                 </Grid>
@@ -234,7 +271,6 @@ const BookingForm = () => {
                             onChange={(e) => handleChange(e, 'endTime')}
                             error={formValues.endTime.error}
                             helperText={formValues.endTime.errorMessage}
-                            renderInput={(params) => <TextField {...params} fullWidth autoComplete="off" />}
                         />
                     </LocalizationProvider>
                 </Grid>

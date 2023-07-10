@@ -14,6 +14,15 @@ function Navbar() {
   const navigate = useNavigate();
 
   const toggleRefresh = useCallback((status) => {
+    console.log("Current user: ", user);
+    console.log(Date.now());
+    // clear the previous interval if one is running
+    if (tickInterval !== null) {
+      console.log("Duplicate tick interval", tickInterval);
+      clearInterval(tickInterval);
+      setTickInterval(null);
+    }
+
     if (status) {
       let i = setInterval(() => {
         console.log("Runs every 10 mins");
@@ -28,9 +37,12 @@ function Navbar() {
           })
           .then((data) => {
             if (data.access_token) {
+              const decodedData = jwtDecode(data.access_token);
+              console.log("Decoded data: ", decodedData);
               setUser({
-                ...user,
                 jwtToken: data.access_token,
+                username: decodedData.username,
+                isAdmin: decodedData.isAdmin,
               })
             }
           })
@@ -60,6 +72,7 @@ function Navbar() {
         .then((data) => {
           if (data.access_token) {
             const decodedData = jwtDecode(data.access_token);
+            console.log("Decoded data: ", decodedData);
             setUser({
               jwtToken: data.access_token,
               username: decodedData.username,
@@ -72,15 +85,18 @@ function Navbar() {
           setLoading(false);
         })
     }
-  }, [user, toggleRefresh])
+  }, [user])
 
   // Use an effect to navigate when the user info is updated
-  // due to async nature of set state we only use 1 set state
+  // due to async nature of set state we only use 1 set state to avoid racing
   useEffect(() => {
     toggleRefresh(true);
     setLoading(false);
     console.log("Navigating to booking management, user details: ", user);
     navigate('/booking-management');
+    return () => {
+      toggleRefresh(false);
+    }
   }, [user]);
 
   const handleSubmit = (event) => {
@@ -105,7 +121,6 @@ function Navbar() {
       body: JSON.stringify(payload),
     }
 
-
     fetch("/authenticate", requestOptions)
       .then((response) => {
         return response.json()
@@ -115,6 +130,7 @@ function Navbar() {
           alert('Invalid username or password');
         } else {
           const decodedData = jwtDecode(data.access_token);
+          console.log("Decoded data: ", decodedData);
           setUser({
             jwtToken: data.access_token,
             username: decodedData.username,
@@ -202,7 +218,7 @@ function Navbar() {
             <Typography variant="subtitle1">
               User: {user.username}
             </Typography>
-            <Button variant="contained" color="secondary" type="button" onClick={handleLogout} sx={{ marginLeft: '15px'}}>
+            <Button variant="contained" color="secondary" type="button" onClick={handleLogout} sx={{ marginLeft: '15px' }}>
               Logout
             </Button>
           </Box>

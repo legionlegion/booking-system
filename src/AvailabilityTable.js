@@ -21,8 +21,9 @@ const AvailabilityTable = () => {
     fetch(`http://localhost:8080/`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
+        console.log("DATA: ", data);
         let newRows = JSON.parse(JSON.stringify(rows));
-
+        
         data.forEach(entry => {
           fillArray(entry.start_time, entry.end_time, newRows);
         });
@@ -37,11 +38,10 @@ const AvailabilityTable = () => {
   function fillArray(start, end, newRows) {
     let startDate = new Date(start);
     let endDate = new Date(end);
-
     // Get the starting and ending day and hour
-    let startDay = (startDate.getDay() + 6) % 7; // Adjusted to have Mon as 0, Tues as 1 etc
+    let startDay = startDate.getDay() - 1; // Adjusted to have Mon as 0, Tues as 1 etc
     let startHour = startDate.getHours();
-
+    console.log("Start day, hours: ", startDay, startHour)
     // Get the difference in hours
     let diffInHours = (endDate - startDate) / (1000 * 60 * 60);
     console.log("Diff in hours: ", diffInHours);
