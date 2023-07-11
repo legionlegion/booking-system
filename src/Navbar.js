@@ -14,18 +14,14 @@ function Navbar() {
   const navigate = useNavigate();
 
   const toggleRefresh = useCallback((status) => {
-    console.log("Current user: ", user);
-    console.log(Date.now());
     // clear the previous interval if one is running
     if (tickInterval !== null) {
-      console.log("Duplicate tick interval", tickInterval);
       clearInterval(tickInterval);
       setTickInterval(null);
     }
 
     if (status) {
       let i = setInterval(() => {
-        console.log("Runs every 10 mins");
         const requestOptions = {
           method: "GET",
           credentials: "include",
@@ -38,7 +34,6 @@ function Navbar() {
           .then((data) => {
             if (data.access_token) {
               const decodedData = jwtDecode(data.access_token);
-              console.log("Decoded data: ", decodedData);
               setUser({
                 jwtToken: data.access_token,
                 username: decodedData.username,
@@ -52,7 +47,6 @@ function Navbar() {
       }, 600000); // every 10 mins
       setTickInterval(i);
     } else {
-      console.log("Turning off tick interval", tickInterval);
       setTickInterval(null);
       clearInterval(tickInterval);
     }
@@ -72,7 +66,6 @@ function Navbar() {
         .then((data) => {
           if (data.access_token) {
             const decodedData = jwtDecode(data.access_token);
-            console.log("Decoded data: ", decodedData);
             setUser({
               jwtToken: data.access_token,
               username: decodedData.username,
@@ -92,7 +85,6 @@ function Navbar() {
   useEffect(() => {
     toggleRefresh(true);
     setLoading(false);
-    console.log("Navigating to booking management, user details: ", user);
     navigate('/booking-management');
     return () => {
       toggleRefresh(false);
@@ -130,7 +122,6 @@ function Navbar() {
           alert('Invalid username or password');
         } else {
           const decodedData = jwtDecode(data.access_token);
-          console.log("Decoded data: ", decodedData);
           setUser({
             jwtToken: data.access_token,
             username: decodedData.username,

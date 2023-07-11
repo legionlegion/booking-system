@@ -8,7 +8,6 @@ function Homepage() {
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    console.log("useEffect fired!");
   }, [])
 
   return (

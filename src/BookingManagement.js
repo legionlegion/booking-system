@@ -15,9 +15,7 @@ const BookingManagement = () => {
 
   // Hook
   useEffect(() => {
-    console.log('isAdmin: ', user.isAdmin);
     if (user.jwtToken === "") {
-      console.log("NO JWT TOKEN")
       navigate("/");
       return
     }
@@ -31,11 +29,10 @@ const BookingManagement = () => {
       headers: headers,
     }
 
-    fetch(`/admin/booking-management`, requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/admin/booking-management`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setBookings(data);
-        console.log("req bookings:", data)
         setUpdated(false);
       })
       .catch(err => {
@@ -43,15 +40,13 @@ const BookingManagement = () => {
       })
 
     if (user.isAdmin) {
-      fetch(`/admin/all-booking`, requestOptions)
+      fetch(`${process.env.REACT_APP_BACKEND}/admin/all-booking`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
           setAllBookings(data);
           setUpdated(false);
-          console.log("all bookings: ", data);
         })
         .catch(err => {
-          console.log("ERR")
           console.log(err);
         })
     }
@@ -59,7 +54,6 @@ const BookingManagement = () => {
 
   const approveBooking = useCallback((booking) => {
     if (user.jwtToken === "") {
-      console.log("NO JWT TOKEN")
       navigate("/");
       return
     }
@@ -78,14 +72,13 @@ const BookingManagement = () => {
       credentials: "include",
     }
 
-    fetch(`/admin/approve-booking`, requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/admin/approve-booking`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
           alert(data.message);
         }
         setUpdated(true);
-        console.log("Approved: ", data);
       })
       .catch(err => {
         alert(err);
@@ -95,7 +88,6 @@ const BookingManagement = () => {
 
   const deleteBooking = useCallback((booking, type) => {
     if (user.jwtToken === "") {
-      console.log("NO JWT TOKEN")
       navigate("/");
       return
     }
@@ -115,11 +107,10 @@ const BookingManagement = () => {
     }
 
     if (type == "pending") {
-      fetch(`/admin/delete-pending`, requestOptions)
+      fetch(`${process.env.REACT_APP_BACKEND}/admin/delete-pending`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
           setUpdated(true);
-          console.log("Deleted: ", data);
         })
         .catch(err => {
           console.log(err);
@@ -127,11 +118,10 @@ const BookingManagement = () => {
     }
 
     if (type == "approved") {
-      fetch(`/admin/delete-approved`, requestOptions)
+      fetch(`${process.env.REACT_APP_BACKEND}/admin/delete-approved`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
           setUpdated(true);
-          console.log("Deleted: ", data);
         })
         .catch(err => {
           console.log(err);

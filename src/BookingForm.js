@@ -22,12 +22,6 @@ const BookingForm = () => {
         let startDateString = `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}-${startDate.getDate().toString().padStart(2, '0')}T00:00:00Z`;
         let endDateString = `${endDate.getFullYear()}-${(endDate.getMonth() + 1).toString().padStart(2, '0')}-${endDate.getDate().toString().padStart(2, '0')}T00:00:00Z`;
 
-        console.log("Start date: ", startDate); // SG time GMT+8
-        console.log("Start time: ", startTime); // SG time GMT+8
-        console.log("Start date string: ", startDateString); // SG time GMT+8
-        console.log("End date string: ", endDateString); // SG time GMT+8
-        console.log("End date: ", endDate); // SG time GMT+8
-        console.log("End time:", endTime); // SG time GMT+8
 
         // Extract the hours and minutes from the time field
         let startHour = startTime.getHours();
@@ -45,10 +39,6 @@ const BookingForm = () => {
         let formattedEndDate = endDate.toISOString();
         let formattedStartDateWithoutMs = formattedStartDate.slice(0, -5) + 'Z'; // remove milliseconds
         let formattedEndDateWithoutMs = formattedEndDate.slice(0, -5) + 'Z'; // remove milliseconds
-        console.log("Start date: ", formattedStartDate); // GMT+0, 2023-07-10T19:00:00.000Z
-        console.log("Start time: ", formattedStartDateWithoutMs); // GMT+0 2023-07-10T19:00:00Z
-        console.log("End date: ", formattedEndDate); // GMT+0 2023-07-10T22:00:00.000Z
-        console.log("End time:", formattedEndDateWithoutMs); // GMT+0 2023-07-10T22:00:00Z
         let newBooking = {
             name: newName,
             start_date: startDateString,
@@ -61,7 +51,6 @@ const BookingForm = () => {
             facility: "MPSH",
         }
 
-        console.log("New booking: ", newBooking);
         // validation passed, submit
         const headers = new Headers();
         headers.append("Content-Type", "application/json");
@@ -79,11 +68,10 @@ const BookingForm = () => {
             credentials: "include",
         }
 
-        fetch(`/admin/add-booking`, requestOptions)
+        fetch(`${process.env.REACT_APP_BACKEND}/admin/add-booking`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    console.log("Err: ", data)
                     alert(data.message);
                 } else {
                     alert("Booking submitted!");
@@ -92,7 +80,6 @@ const BookingForm = () => {
             })
             .catch(err => {
                 alert("Error: " + err);
-                console.log(err);
             })
     }
 
@@ -183,7 +170,6 @@ const BookingForm = () => {
         Object.keys(formValues).forEach((key) => {
             const field = formValues[key];
             if (!field.value) {
-                console.log("Error with form: ", key);
                 newFormValues[key].error = true;
                 isError = true;
             }

@@ -39,16 +39,12 @@ const AvailabilityTable = () => {
       headers: headers,
     }
 
-    fetch(`http://localhost:8080/`, requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log("DATA: ", data);
-
         data.forEach(entry => {
           fillArray(entry.start_time, entry.end_time, currentWeekRows, nextWeekRows);
         });
-        console.log("Current week rows: ", currentWeekRows);
-        console.log("Next week rows: ", nextWeekRows);
         let newCurr = JSON.parse(JSON.stringify(currentWeekRows));
         let newNext = JSON.parse(JSON.stringify(nextWeekRows));
         setCurrentWeekRows(newCurr);
@@ -62,9 +58,6 @@ const AvailabilityTable = () => {
   function fillArray(start, end, currentWeekRows, nextWeekRows) {
     let startDate = new Date(start);
     let endDate = new Date(end);
-    console.log("Start date: ", startDate);
-    console.log("Curr week start: ", currentWeekStart);
-    console.log("Next week start: ", nextWeekStart);
     // decide which array to fill
     let newRows;
     if (startDate >= currentWeekStart && startDate < nextWeekStart) {

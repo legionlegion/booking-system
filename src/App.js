@@ -33,8 +33,6 @@ function UserContextProvider({ children }) {
 function App() {
   const { user, isLoading } = useContext(UserContext);
   useEffect(() => {
-    console.log("App is loading: ", user.isAdmin);
-    console.log("JWT token: ", user.jwtToken);
   }, [isLoading])
 
   return (
