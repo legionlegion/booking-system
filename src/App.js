@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo, createContext, useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import Homepage from './Homepage';
 import Navbar from './Navbar';
 import BookingManagement from './BookingManagement';
@@ -7,6 +9,21 @@ import RegisterPage from './Register';
 
 // Created context
 export const UserContext = createContext();
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDvdAXi9pl0PeQtTIMSRbJTvM7kqXisrGg",
+  authDomain: "syal-2ae9b.firebaseapp.com",
+  projectId: "syal-2ae9b",
+  storageBucket: "syal-2ae9b.appspot.com",
+  messagingSenderId: "289513469289",
+  appId: "1:289513469289:web:a97ef659fd2c2379d8b9f8",
+  measurementId: "G-4W6RY89KJM"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 // That component separates user context from app, so we don't pollute it
 function UserContextProvider({ children }) {
