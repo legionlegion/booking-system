@@ -1,11 +1,12 @@
 import React from "react";
-import { Input } from "@mui/material";
+import { TextField } from "@mui/material";
+
 
 const FormInput = ({ title, type, id, autoComplete, value, error, errorMessage, onChange }) => {
-  return(
+  return (
     <div className='mb-3'>
       <label className='form-label' htmlFor={id}>{title}</label>
-      <Input
+      <TextField
         variant="outlined"
         type={type}
         id={id}
@@ -15,7 +16,6 @@ const FormInput = ({ title, type, id, autoComplete, value, error, errorMessage, 
         value={value}
         error={error}
         helperText={error ? errorMessage : null}
-        multiline
         fullWidth
       />
     </div>

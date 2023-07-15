@@ -10,9 +10,10 @@ const AvailabilityTable = () => {
 
   const currentDate = new Date();
   const currentDayOfWeek = currentDate.getDay();
+  let diffToMonday = currentDayOfWeek >= 1 ? currentDayOfWeek - 1 : 6; // If it's Sunday, we want to subtract 6 to get to previous Monday
 
   let currentWeekStart = new Date();
-  currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // set to Monday of this week
+  currentWeekStart.setDate(currentWeekStart.getDate() - diffToMonday);
   currentWeekStart.setHours(0, 0, 0, 0); // set time to 00:00:00.000
 
   let nextWeekStart = new Date(currentWeekStart);
@@ -60,6 +61,9 @@ const AvailabilityTable = () => {
     let endDate = new Date(end);
     // decide which array to fill
     let newRows;
+    console.log("Start date: ", startDate);
+    console.log("Current week start: ", currentWeekStart);
+    console.log("Next week start: ", nextWeekStart)
     if (startDate >= currentWeekStart && startDate < nextWeekStart) {
       newRows = currentWeekRows;
     } else if (startDate >= nextWeekStart) {

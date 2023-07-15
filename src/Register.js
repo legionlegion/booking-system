@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Input from "./FormInput";
+import FormInput from "./FormInput";
 import { Box, Button, Checkbox, FormControlLabel } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -55,7 +55,7 @@ const RegisterPage = () => {
     <div className='container'>
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
-        <Input
+        <FormInput
           title="Username"
           type="text"
           name="username"
@@ -63,7 +63,7 @@ const RegisterPage = () => {
           onChange={(event) => setUsername(event.target.value)}
           autoComplete="username"
         />
-        <Input
+        <FormInput
           title="Password"
           type="password"
           name="password"
