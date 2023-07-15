@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import Input from "./FormInput";
-import { Button } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [admin, setAdmin] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (event) => {
@@ -19,6 +20,7 @@ const RegisterPage = () => {
     let payload = {
       username: username,
       password: password,
+      admin: admin
     }
 
     const requestOptions = {
@@ -31,13 +33,14 @@ const RegisterPage = () => {
     }
 
 
-    fetch("/register", requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/register`, requestOptions)
       .then((response) => {
         return response.json()
       })
       .then((data) => {
         if (data.error) {
-          alert('Invalid username or password');
+          alert(data.error);
+          console.log(data.error)
         } else {
           alert("Success");
           navigate("/");
@@ -68,9 +71,22 @@ const RegisterPage = () => {
           onChange={(event) => setPassword(event.target.value)}
           autoComplete="new-password"
         />
-        <Button type="submit" variant="contained" color="primary">
-          Register
-        </Button>
+        <Box>
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="admin"
+                onChange={(event) => setAdmin(event.target.checked)}
+              />
+            }
+            label="I am an admin"
+          />
+        </Box>
+        <Box>
+          <Button type="submit" variant="contained" color="primary">
+            Register
+          </Button>
+        </Box>
       </form>
     </div>
   );

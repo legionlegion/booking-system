@@ -113,7 +113,7 @@ function Navbar() {
       body: JSON.stringify(payload),
     }
 
-    fetch("/authenticate", requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/authenticate`, requestOptions)
       .then((response) => {
         return response.json()
       })

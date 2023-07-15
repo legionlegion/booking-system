@@ -1,0 +1,25 @@
+[33m0c92034[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Deployment ready
+[33m32872e3[m Added 2nd table to display next week's availability
+[33m23dbbe4[m - Booking management page for admins - Date time formatting fix to standardise with database
+[33m450da9e[m Added more MUI components
+[33mf231863[m UI Changes v1
+[33meb32160[m Removed Test component
+[33m664c1eb[m Merge branch 'main' of https://github.com/legionlegion/booking-system
+[33m2df3b23[m Register page bug fix
+[33m32e6667[m Merge branch 'main' of https://github.com/legionlegion/booking-system
+[33mbd8e205[m - Added Booking Management page - Changed jwtToken and user information from local state to global state - Availability table now displays all booked time slots in red
+[33mb359a4b[m Update README.md
+[33mb94fa13[m Features added: 1. Registration call to backend 2. Bug fixes for JWT token not detected causing erroneous navigation 3. Formatting of input field's date by Timepicker component to ISO    string
+[33m52e85d4[m Changes: 1. Bug fix for Navbar display of login/logout 2. Added refresh token countdown
+[33m7080e48[m jwt token initialisation
+[33m804977e[m basic form validation
+[33ma49cb46[m added register page
+[33mfe7e0d3[m backend connection setup
+[33m2846320[m Merge branch 'main' of https://github.com/vrlxal/booking-system
+[33ma008d9f[m backend basic setup
+[33m314281c[m Updated admin and password, updated a second page
+[33m5c67d3b[m Updated heading and booking table
+[33m9a9d64b[m submission form and table draft
+[33m148cd75[m fixed merge conflicts
+[33m683a998[m first commit
+[33mc01fc1c[m Initial commit

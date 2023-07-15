@@ -1,11 +1,11 @@
 import React from "react";
-import { TextField } from "@mui/material";
+import { Input } from "@mui/material";
 
 const FormInput = ({ title, type, id, autoComplete, value, error, errorMessage, onChange }) => {
   return(
     <div className='mb-3'>
       <label className='form-label' htmlFor={id}>{title}</label>
-      <TextField
+      <Input
         variant="outlined"
         type={type}
         id={id}
