@@ -3,6 +3,7 @@ import { Button, Icon, Table, TableBody, TableCell, TableContainer, TableHead, T
 import { ArrowLeft, ArrowRight } from '@mui/icons-material';
 
 const AvailabilityTable = () => {
+  const [loading, setLoading] = useState(true);
   const columns = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const [currentWeekRows, setCurrentWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill(0)));
   const [nextWeekRows, setNextWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill(0)));
@@ -50,9 +51,11 @@ const AvailabilityTable = () => {
         let newNext = JSON.parse(JSON.stringify(nextWeekRows));
         setCurrentWeekRows(newCurr);
         setNextWeekRows(newNext);
+        setLoading(false);
       })
       .catch(err => {
         console.log(err);
+        setLoading(false);
       })
   }, [])
 
@@ -61,9 +64,9 @@ const AvailabilityTable = () => {
     let endDate = new Date(end);
     // decide which array to fill
     let newRows;
-    console.log("Start date: ", startDate);
-    console.log("Current week start: ", currentWeekStart);
-    console.log("Next week start: ", nextWeekStart)
+    // console.log("Start date: ", startDate);
+    // console.log("Current week start: ", currentWeekStart);
+    // console.log("Next week start: ", nextWeekStart)
     if (startDate >= currentWeekStart && startDate < nextWeekStart) {
       newRows = currentWeekRows;
     } else if (startDate >= nextWeekStart) {
@@ -93,67 +96,69 @@ const AvailabilityTable = () => {
     }
   }
 
-  return (
-    <>
-      <Button onClick={showCurrentWeek}>
-        <ArrowLeft />Previous Week
-      </Button>
-      <Button onClick={showNextWeek}>
-        Next Week<ArrowRight />
-      </Button>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="availability table">
-          <TableHead>
-            <TableRow>
-              <TableCell size="small">Date</TableCell>
-              <TableCell size="small">Day / Time</TableCell>
-              {Array.from(Array(24).keys()).map(hour =>
-                <TableCell size="small" key={hour}>{hour.toString().padStart(2, '0')}:00</TableCell>
-              )}
-            </TableRow>
-          </TableHead>
-          {currentWeekVisible ?
-            <TableBody>
-              {currentWeekRows.map((day, i) =>
-                <TableRow key={i}>
-                  <TableCell size="small">{new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
-                  <TableCell size="small">{columns[i]}</TableCell>
-                  {day.map((hour, j) =>
-                    <TableCell key={j}
-                      size="small"
-                      sx={{
-                        backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
-                        textAlign: 'center',
-                        fontSize: '10px'
-                      }}>
-                    </TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-            :
-            <TableBody>
-              {nextWeekRows.map((day, i) =>
-                <TableRow key={i}>
-                  <TableCell size="small">{new Date(currentDate.getTime() + (i + 7 - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
-                  <TableCell size="small">{columns[i]}</TableCell>
-                  {day.map((hour, j) =>
-                    <TableCell key={j}
-                      size="small"
-                      sx={{
-                        backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
-                        textAlign: 'center',
-                        fontSize: '10px'
-                      }}>
-                    </TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>}
-        </Table>
-      </TableContainer>
-    </>
-  );
+  return loading ?
+    <div>Loading...</div> :
+    (
+      <>
+        <Button onClick={showCurrentWeek}>
+          <ArrowLeft />Previous Week
+        </Button>
+        <Button onClick={showNextWeek}>
+          Next Week<ArrowRight />
+        </Button>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="availability table">
+            <TableHead>
+              <TableRow>
+                <TableCell size="small">Date</TableCell>
+                <TableCell size="small">Day / Time</TableCell>
+                {Array.from(Array(24).keys()).map(hour =>
+                  <TableCell size="small" key={hour}>{hour.toString().padStart(2, '0')}:00</TableCell>
+                )}
+              </TableRow>
+            </TableHead>
+            {currentWeekVisible ?
+              <TableBody>
+                {currentWeekRows.map((day, i) =>
+                  <TableRow key={i}>
+                    <TableCell size="small">{new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
+                    <TableCell size="small">{columns[i]}</TableCell>
+                    {day.map((hour, j) =>
+                      <TableCell key={j}
+                        size="small"
+                        sx={{
+                          backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
+                          textAlign: 'center',
+                          fontSize: '10px'
+                        }}>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                )}
+              </TableBody>
+              :
+              <TableBody>
+                {nextWeekRows.map((day, i) =>
+                  <TableRow key={i}>
+                    <TableCell size="small">{new Date(currentDate.getTime() + (i + 7 - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
+                    <TableCell size="small">{columns[i]}</TableCell>
+                    {day.map((hour, j) =>
+                      <TableCell key={j}
+                        size="small"
+                        sx={{
+                          backgroundColor: hour === 1 ? '#b90606' : '#90EE90',
+                          textAlign: 'center',
+                          fontSize: '10px'
+                        }}>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                )}
+              </TableBody>}
+          </Table>
+        </TableContainer>
+      </>
+    )
 };
 
 export default AvailabilityTable;

@@ -27,7 +27,7 @@ function Navbar() {
           credentials: "include",
         }
 
-        fetch('/refresh', requestOptions)
+        fetch(`${process.env.REACT_APP_BACKEND}/refresh`, requestOptions)
           .then((response) => {
             return response.json();
           })
@@ -54,12 +54,13 @@ function Navbar() {
 
   useEffect(() => {
     if (user.jwtToken === "") {
+      console.log("No jwt token");
       const requestOptions = {
         method: "GET",
         credentials: "include",
       }
 
-      fetch('/refresh', requestOptions)
+      fetch(`${process.env.REACT_APP_BACKEND}/refresh`, requestOptions)
         .then((response) => {
           return response.json();
         })
@@ -141,7 +142,7 @@ function Navbar() {
       credentials: "include",
     }
 
-    fetch('/logout', requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/logout`, requestOptions)
       .catch(error => {
         console.log("Error logging out", error);
       })

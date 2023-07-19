@@ -40,7 +40,17 @@ const BookingManagement = () => {
       })
 
     if (user.isAdmin) {
-      fetch(`${process.env.REACT_APP_BACKEND}/admin/all-booking`, requestOptions)
+      fetch(`${process.env.REACT_APP_BACKEND}/admin/all-bookings`, requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setAllBookings(data);
+          setUpdated(false);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    } else {
+      fetch(`${process.env.REACT_APP_BACKEND}/admin/user-bookings`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
           setAllBookings(data);
@@ -151,7 +161,7 @@ const BookingManagement = () => {
             </thead>
             <tbody>
               {
-                user.isAdmin && allBookings ? allBookings.map((booking, index) => (
+                allBookings ? allBookings.map((booking, index) => (
                   <tr key={index}>
                     <td>{booking.username}</td>
                     <td>{booking.name}</td>

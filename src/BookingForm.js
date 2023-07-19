@@ -129,11 +129,18 @@ const BookingForm = () => {
         if (field === "startTime" || field === "endTime" || field === "startDate" || field === "endDate") {
             value = e;
             if (e) {
+                if (field === "startTime" && formValues.endTime.value && dayjs(e).isAfter(dayjs(formValues.endTime.value))) {
+                    error = true;
+                    errorMessage = "Start time cannot be later than end time!";
+                }
+                if (field === "startDate" && formValues.endDate.value && dayjs(e).isAfter(dayjs(formValues.endDate.value))) {
+                    error = true;
+                    errorMessage = "Start date cannot be later than end date!";
+                }
                 if (field === "endTime" && formValues.startTime.value && dayjs(e).isBefore(dayjs(formValues.startTime.value))) {
                     error = true;
                     errorMessage = "End time cannot be earlier than start time!";
                 }
-
                 if (field === "endDate" && formValues.startDate.value && dayjs(e).isBefore(dayjs(formValues.startDate.value))) {
                     error = true;
                     errorMessage = "End date cannot be earlier than start date!";
@@ -155,7 +162,7 @@ const BookingForm = () => {
             [field]: {
                 value: value,
                 error: error,
-                errorMessage: errorMessage
+                errorMessage: errorMessage == "" ? formValues[field].errorMessage : errorMessage
             }
         };
 
