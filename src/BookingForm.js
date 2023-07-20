@@ -10,6 +10,8 @@ import { UserContext } from "./App";
 import { useNavigate } from "react-router-dom";
 
 const BookingForm = () => {
+    const [openStart, setOpenStart] = useState(false);
+    const [openEnd, setOpenEnd] = useState(false);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
@@ -150,6 +152,9 @@ const BookingForm = () => {
                 errorMessage = formValues[field].errorMessage;
             }
         } else {
+            if (field === "unitNumber" && e.target.value.length > 4) {
+                return; // don't update the value if the length is more than 4
+            }
             value = e.target.value;
             if (!value) {
                 error = true;
@@ -199,23 +204,28 @@ const BookingForm = () => {
                 error={formValues.name.error}
                 errorMessage={formValues.name.errorMessage}
                 onChange={(e) => handleChange(e, 'name')}
+                limit={20}
             >
             </FormInput>
             <FormInput
                 title="Unit Number"
-                type="text"
+                type="number"
                 id="unit-number"
                 autoComplete="unit-number"
                 value={formValues.unitNumber.value}
                 error={formValues.unitNumber.error}
                 errorMessage={formValues.unitNumber.errorMessage}
                 onChange={(e) => handleChange(e, 'unitNumber')}
+                limit={4}
             >
             </FormInput>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
+                            open={openStart}
+                            onOpen={() => setOpenStart(true)}
+                            onClose={() => setOpenStart(false)}
                             label="Start date"
                             value={formValues.startDate.value}
                             onChange={(e) => handleChange(e, 'startDate')}
@@ -223,7 +233,9 @@ const BookingForm = () => {
                             slotProps={{
                                 textField: {
                                     error: formValues.startDate.error,
-                                    helperText: formValues.startDate.error ? formValues.startDate.errorMessage : ""
+                                    helperText: formValues.startDate.error ? formValues.startDate.errorMessage : "",
+                                    readOnly: true,
+                                    onClick: (e) => setOpenStart(true)
                                 }
                             }}
                         />
@@ -232,7 +244,7 @@ const BookingForm = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimePicker
-                            label="Start Time"
+                            title="Start Time"
                             value={formValues.startTime.value}
                             onChange={(e) => handleChange(e, 'startTime')}
                             error={formValues.startTime.error}
@@ -243,6 +255,9 @@ const BookingForm = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
+                            open={openEnd}
+                            onOpen={() => setOpenEnd(true)}
+                            onClose={() => setOpenEnd(false)}
                             label="End date"
                             value={formValues.endDate.value}
                             onChange={(e) => handleChange(e, 'endDate')}
@@ -250,7 +265,9 @@ const BookingForm = () => {
                             slotProps={{
                                 textField: {
                                     error: formValues.endDate.error,
-                                    helperText: formValues.endDate.error ? formValues.endDate.errorMessage : ""
+                                    helperText: formValues.endDate.error ? formValues.endDate.errorMessage : "",
+                                    readOnly: true,
+                                    onClick: (e) => setOpenEnd(true)
                                 }
                             }}
                         />
@@ -259,7 +276,7 @@ const BookingForm = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimePicker
-                            label="End Time"
+                            title="End Time"
                             value={formValues.endTime.value}
                             onChange={(e) => handleChange(e, 'endTime')}
                             error={formValues.endTime.error}
@@ -277,6 +294,7 @@ const BookingForm = () => {
                 error={formValues.purpose.error}
                 errorMessage={formValues.purpose.errorMessage}
                 onChange={(e) => handleChange(e, 'purpose')}
+                limit={100}
             >
             </FormInput>
 

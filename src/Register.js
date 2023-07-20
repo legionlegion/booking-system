@@ -14,6 +14,7 @@ const RegisterPage = () => {
 
     if (username === "" || password === "") {
       alert('Please enter both username and password');
+      return;
     }
 
     // build request payload
@@ -62,6 +63,7 @@ const RegisterPage = () => {
           id="username"
           onChange={(event) => setUsername(event.target.value)}
           autoComplete="username"
+          limit={10}
         />
         <FormInput
           title="Password"
@@ -70,6 +72,7 @@ const RegisterPage = () => {
           id="password"
           onChange={(event) => setPassword(event.target.value)}
           autoComplete="new-password"
+          limit={10}
         />
         <Box>
           <FormControlLabel
@@ -79,7 +82,7 @@ const RegisterPage = () => {
                 onChange={(event) => setAdmin(event.target.checked)}
               />
             }
-            label="I am an admin"
+            label="I am an admin (for demo purposes)"
           />
         </Box>
         <Box>

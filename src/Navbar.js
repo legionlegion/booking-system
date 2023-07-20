@@ -97,6 +97,7 @@ function Navbar() {
 
     if (usernameLogin === "" || password === "") {
       alert('Please enter both username and password');
+      return;
     }
 
     // build request payload
@@ -183,19 +184,21 @@ function Navbar() {
         {user.jwtToken === "" ? (
           <form onSubmit={handleSubmit}>
             <TextField
-              variant="standard"
+              variant="outlined"
               placeholder="Username"
               value={usernameLogin}
               onChange={(event) => setUsernameLogin(event.target.value)}
               sx={{ marginRight: '10px' }}
+              inputProps={{ maxLength: 10 }}
             />
             <TextField
-              variant="standard"
+              variant="outlined"
               type="password"
               placeholder="Password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               sx={{ marginRight: '10px' }}
+              inputProps={{ maxLength: 10 }}
             />
             <Button variant="contained" color="secondary" type="submit" sx={{ marginRight: '10px' }}>
               Login

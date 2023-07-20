@@ -2,7 +2,7 @@ import React from "react";
 import { TextField } from "@mui/material";
 
 
-const FormInput = ({ title, type, id, autoComplete, value, error, errorMessage, onChange }) => {
+const FormInput = ({ title, type, id, autoComplete, value, error, errorMessage, onChange, limit }) => {
   return (
     <div className='mb-3'>
       <label className='form-label' htmlFor={id}>{title}</label>
@@ -17,6 +17,7 @@ const FormInput = ({ title, type, id, autoComplete, value, error, errorMessage, 
         error={error}
         helperText={error ? errorMessage : null}
         fullWidth
+        inputProps={{ maxLength: limit }}
       />
     </div>
   );
