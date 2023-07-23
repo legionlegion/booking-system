@@ -62,30 +62,49 @@ const AvailabilityTable = () => {
   function fillArray(start, end, currentWeekRows, nextWeekRows) {
     let startDate = new Date(start);
     let endDate = new Date(end);
-    // decide which array to fill
-    let newRows;
-    // console.log("Start date: ", startDate);
-    // console.log("Current week start: ", currentWeekStart);
-    // console.log("Next week start: ", nextWeekStart)
-    if (startDate >= currentWeekStart && startDate < nextWeekStart) {
-      newRows = currentWeekRows;
-    } else if (startDate >= nextWeekStart) {
-      newRows = nextWeekRows;
-    } else {
-      return; // ignore dates outside current and next week
-    }
 
+    let currentWeekEnd = new Date(nextWeekStart);
+
+    // Find out if the booking ends in the next week
+    let crossesIntoNextWeek = endDate > currentWeekEnd;
+
+    // Create a temporary end date for the current week
+    let tempEndDate = crossesIntoNextWeek ? currentWeekEnd : endDate;
+
+    // First fill the current week's rows
+    fillRows(startDate, tempEndDate, currentWeekRows);
+
+    // If the booking crosses into the next week, fill the next week's rows
+    if (crossesIntoNextWeek) {
+      // Create a temporary start date for the next week. 
+      // If the booking starts in the current week, it should be the start of the next week
+      // If the booking starts in the next week, it should be the start of the booking
+      let tempStartDate = startDate < currentWeekEnd ? new Date(nextWeekStart) : startDate;
+
+      // Fill the next week's rows
+      fillRows(tempStartDate, endDate, nextWeekRows);
+    }
+  }
+
+  function fillRows(start, end, rows) {
     // Get the starting and ending day and hour
+    let startDate = new Date(start);
+    let endDate = new Date(end);
+
     let startDay = startDate.getDay() - 1; // Adjusted to have Mon as 0, Tues as 1 etc
+    if (startDay == -1) startDay = 6;
     let startHour = startDate.getHours();
+
     // Get the difference in hours
     let diffInHours = (endDate - startDate) / (1000 * 60 * 60);
+
     // Loop through the days and hours, updating the array
     let currentDay = startDay;
     let currentHour = startHour;
     for (let i = 0; i < diffInHours; i++) {
-      newRows[currentDay][currentHour] = 1;
+      rows[currentDay][currentHour] = 1;
       currentHour++;
+
       if (currentHour === 24) { // If we've reached the end of the day
         currentHour = 0;
         currentDay++;
