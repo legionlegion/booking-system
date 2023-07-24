@@ -1,74 +1,23 @@
-# Getting Started with Create React App
+# Book4U
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a full-stack project hosted [here](https://syal-2ae9b.firebaseapp.com/).
 
-## Available Scripts
+## Project Scope
 
-In the project directory, you can run:
+A streamlined facility booking system for non-registered campus facilities for students who need to book spaces for group meetings, events, or projects.
 
-### `npm start`
+## Problem
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The booking schedule of RC4’s Multiple Purpose Sports Hall (MPSH) is updated manually via Google Sheets. Residents who wish to book the MPSH must first check the Google excel timetable, then text the POC via Telegram the booking details such as booking timing, number of users, purpose etc, to a student representative who is replaced yearly. This representative will then manually update the Google Sheets with the booking to reserve it.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Solution
 
-### `npm test`
+Our booking system will allow anyone to submit a booking request via the home page of the booking system. Admins will be able to login with accounts and view the list of all submitted bookings, and choose which are the ones to be approved. The updated request will be reflected on the timetable displayed on the homepage.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Features of system
 
-### `npm run build`
+Detailed documentation of system features, system and user testing can be found in the [full project documentation] (https://docs.google.com/document/d/1lBbl30woSB4tnFogro37Me5kaN_AsGDz815Tp-ZH0GI/edit?usp=sharing)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# booking-system
-this is the booking system
->>>>>>> c01fc1c77097a8180082cd348ae9cbf47db966d3
+## Frameworks used
+Frontend: ReactJS with Bootstrap and MUI, hosted by Firebase
+Backend: Go with Docker and PostgreSQL, hosted by Heroku
