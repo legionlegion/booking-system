@@ -16,7 +16,7 @@ Our booking system will allow anyone to submit a booking request via the home pa
 
 ## Features of system
 
-Detailed documentation of system features, system and user testing can be found in the [full project documentation] (https://docs.google.com/document/d/1lBbl30woSB4tnFogro37Me5kaN_AsGDz815Tp-ZH0GI/edit?usp=sharing)
+Detailed documentation of system features, system and user testing can be found in the [full project documentation](https://docs.google.com/document/d/1lBbl30woSB4tnFogro37Me5kaN_AsGDz815Tp-ZH0GI/edit?usp=sharing)
 
 ## Frameworks used
 Frontend: ReactJS with Bootstrap and MUI, hosted by Firebase
