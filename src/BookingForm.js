@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from 'react';
 import FormInput from "./FormInput";
 import TimePicker from "./Timepicker";
 import dayjs from 'dayjs';
@@ -8,6 +8,11 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { UserContext } from "./App";
 import { useNavigate } from "react-router-dom";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 const BookingForm = () => {
     const [openStart, setOpenStart] = useState(false);
@@ -16,6 +21,7 @@ const BookingForm = () => {
     const navigate = useNavigate();
 
     const handleSubmit = (newName, newStartDate, newEndDate, newUnitNumber, newStartTime, newEndTime, newPurpose) => {
+
         // Create Date objects from inputs
         let startDate = new Date(newStartDate);
         let startTime = new Date(newStartTime);
@@ -91,10 +97,20 @@ const BookingForm = () => {
             error: false,
             errorMessage: "You must enter a name"
         },
-        unitNumber: {
+        unitLevel: {
             value: "",
             error: false,
-            errorMessage: "You must enter a unit number"
+            errorMessage: "You must enter a level"
+        },
+        unitRoom: {
+            value: "",
+            error: false,
+            errorMessage: "You must enter a room number"
+        },
+        unitLetter: {
+            value: "",
+            error: false,
+            errorMessage: "You must enter a letter"
         },
         startDate: {
             value: null,
@@ -154,9 +170,6 @@ const BookingForm = () => {
                 errorMessage = formValues[field].errorMessage;
             }
         } else {
-            if (field === "unitNumber" && e.target.value.length > 4) {
-                return; // don't update the value if the length is more than 4
-            }
             value = e.target.value;
             if (!value) {
                 error = true;
@@ -176,12 +189,40 @@ const BookingForm = () => {
         setFormValues(newFormValues);
     };
 
+    useEffect(() => {
+        // Update errors based on formValues.unitRoom and formValues.unitLetter values
+        const newFormValues = {...formValues}; // Make a copy of formValues state
+    
+        if (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12') {
+            // Check if unitLetter has a value
+            if (!formValues.unitLetter.value) {
+                newFormValues.unitLetter.error = true;
+                newFormValues.unitLetter.errorMessage = 'Letter is required';
+            } else {
+                newFormValues.unitLetter.error = false;
+                newFormValues.unitLetter.errorMessage = '';
+            }
+        } else {
+            // Clear error for unitLetter if unitRoom is not '01', '11' or '12'
+            newFormValues.unitLetter.error = false;
+            newFormValues.unitLetter.errorMessage = '';
+            newFormValues.unitLetter.value = '';  // Reset unitLetter value to empty
+        }
+    
+        setFormValues(newFormValues);
+    }, [formValues.unitRoom.value, formValues.unitLetter.value]);
+
     const handleFormSubmit = (e) => {
         e.preventDefault();
         let isError = false;
         let newFormValues = { ...formValues };
 
         Object.keys(formValues).forEach((key) => {
+                    // Skip validation for unitLetter if room number is not '01', '11', or '12'
+            if (key === 'unitLetter' && !['01', '11', '12'].includes(formValues.unitRoom.value)) {
+                return;
+            }
+
             const field = formValues[key];
             if (!field.value) {
                 newFormValues[key].error = true;
@@ -190,8 +231,19 @@ const BookingForm = () => {
         });
         setFormValues(newFormValues);
         if (!isError) {
-            handleSubmit(formValues.name.value, formValues.startDate.value, formValues.endDate.value,
-                formValues.unitNumber.value, formValues.startTime.value, formValues.endTime.value, formValues.purpose.value);
+            // Combine the unit level, room, and letter into one string
+            let newUnitNumber = `#${formValues.unitLevel.value}-${formValues.unitRoom.value}`;
+            if(formValues.unitLetter.value) {
+                newUnitNumber += formValues.unitLetter.value;
+            }
+            
+            handleSubmit(formValues.name.value,
+                         formValues.startDate.value,
+                         formValues.endDate.value,
+                         newUnitNumber,
+                         formValues.startTime.value,
+                         formValues.endTime.value,
+                         formValues.purpose.value);
         }
     };
 
@@ -209,19 +261,70 @@ const BookingForm = () => {
                 limit={20}
             >
             </FormInput>
-            <FormInput
-                title="Unit Number"
-                type="number"
-                id="unit-number"
-                autoComplete="unit-number"
-                value={formValues.unitNumber.value}
-                error={formValues.unitNumber.error}
-                errorMessage={formValues.unitNumber.errorMessage}
-                onChange={(e) => handleChange(e, 'unitNumber')}
-                limit={4}
-            >
-            </FormInput>
             <Grid container spacing={3}>
+                <Grid item xs={4}>
+                    <FormControl variant="outlined" fullWidth error={formValues.unitLevel.error}>
+                        <InputLabel>Unit Level</InputLabel>
+                        <Select
+                            label="Unit Level"
+                            value={formValues.unitLevel.value}
+                            onChange={(e) => handleChange(e, 'unitLevel')}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {Array.from({ length: 15 }, (_, i) => i + 3).map((level) => (
+                                <MenuItem key={level} value={level}>{level}</MenuItem>
+                            ))}
+                        </Select>
+                        {formValues.unitLevel.error && 
+                        <FormHelperText>{formValues.unitLevel.errorMessage}</FormHelperText>}
+                    </FormControl>
+                </Grid>
+                <Grid item xs={4}>
+                    <FormControl variant="outlined"  fullWidth error={formValues.unitRoom.error}>
+                        <InputLabel>Unit Room</InputLabel>
+                        <Select 
+                            label="Unit Room"
+                            value={formValues.unitRoom.value} 
+                            onChange={(e) => handleChange(e, 'unitRoom')}
+                            error={formValues.unitRoom.error}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {Array.from({ length: 27 }, (_, i) => (i + 1).toString().padStart(2, '0')).map((room) => (
+                                <MenuItem key={room} value={room}>{room}</MenuItem>
+                            ))}
+                        </Select>
+                        {formValues.unitRoom.error && 
+                        <FormHelperText>{formValues.unitRoom.errorMessage}</FormHelperText>}
+                    </FormControl>
+                </Grid>
+                <Grid item xs={4}>
+                    <FormControl variant="outlined" fullWidth disabled={formValues.unitRoom.value !== '01' && formValues.unitRoom.value !== '11' && formValues.unitRoom.value !== '12'}
+                    error={formValues.unitLetter.error && (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12')}
+                    >
+                        <InputLabel>Letter</InputLabel>
+                        <Select 
+                            label="Letter"
+                            value={formValues.unitLetter.value} 
+                            onChange={(e) => handleChange(e, 'unitLetter')}
+                            error={formValues.unitLetter.error}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {['A', 'B', 'C', 'D', 'E', 'F'].map((letter) => (
+                                <MenuItem key={letter} value={letter}>{letter}</MenuItem>
+                            ))}
+                        </Select>
+                        {formValues.unitLetter.error && (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12') && 
+                        <FormHelperText>{formValues.unitLetter.errorMessage}</FormHelperText>}
+                    </FormControl>
+                </Grid>
+            </Grid>
+            <Grid container spacing={3} style={{ marginTop: '1px'}}>
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
@@ -297,8 +400,8 @@ const BookingForm = () => {
                 errorMessage={formValues.purpose.errorMessage}
                 onChange={(e) => handleChange(e, 'purpose')}
                 limit={100}
-            >
-            </FormInput>
+            />
+
 
             <Input type="submit" value="Submit" className="btn btn-primary mb-3"></Input>
         </form>
