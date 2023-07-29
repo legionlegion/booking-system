@@ -2,16 +2,14 @@ import React, { useContext, useState, useEffect } from 'react';
 import FormInput from "./FormInput";
 import TimePicker from "./Timepicker";
 import dayjs from 'dayjs';
-import { Grid } from '@mui/material';
+import { Grid, TextField } from '@mui/material';
 import { Input } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { UserContext } from "./App";
 import { useNavigate } from "react-router-dom";
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
+import { FormControl, InputLabel, FormHelperText } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 const BookingForm = () => {
@@ -249,19 +247,45 @@ const BookingForm = () => {
 
     return (
         <form autoComplete='off' onSubmit={handleFormSubmit}>
-            <FormInput
-                title="Name"
-                type="text"
-                id="name"
-                autoComplete="name"
-                value={formValues.name.value}
-                error={formValues.name.error}
-                errorMessage={formValues.name.errorMessage}
-                onChange={(e) => handleChange(e, 'name')}
-                limit={20}
-            >
-            </FormInput>
             <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                    <TextField 
+                        id="name"
+                        type="text"
+                        label="Name"
+                        variant="outlined"
+                        fullWidth
+                        value={formValues.name.value}
+                        error={Boolean(formValues.name.error)}
+                        helperText={formValues.name.error ? formValues.name.errorMessage : ""}
+                        onChange={(e) => handleChange(e, 'name')}
+                        autoComplete="name"
+                        inputProps={{ maxLength: 20 }}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <FormControl variant="outlined" fullWidth error={formValues.purpose.error}>
+                        <InputLabel>Purpose</InputLabel>
+                        <Select
+                            label="Purpose"
+                            id="purpose"
+                            value={formValues.purpose.value}
+                            onChange={(e) => handleChange(e, 'purpose')}
+                            autoComplete="purpose"
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {['Personal', 'Ulti', 'Badminton', 'Dodgeball', 'Spikeball', 'Table Tennis', 'Tembu Netball', 'R4D', 'Captains Ball', 'Floorball', 'Netball', 'Tchoukball', 'Basketball (W)', 'Basketball (M)'].map((purpose) => (
+                                <MenuItem key={purpose} value={purpose}>{purpose}</MenuItem>
+                            ))}
+                        </Select>
+                        {formValues.purpose.error && 
+                        <FormHelperText>{formValues.purpose.errorMessage}</FormHelperText>}
+                    </FormControl>
+                </Grid>
+            </Grid>
+            <Grid container spacing={3} style={{ marginTop: '1px'}}>
                 <Grid item xs={4}>
                     <FormControl variant="outlined" fullWidth error={formValues.unitLevel.error}>
                         <InputLabel>Unit Level</InputLabel>
@@ -390,18 +414,6 @@ const BookingForm = () => {
                     </LocalizationProvider>
                 </Grid>
             </Grid>
-            <FormInput
-                title="Purpose"
-                type="text"
-                id="purpose"
-                autoComplete="purpose"
-                value={formValues.purpose.value}
-                error={formValues.purpose.error}
-                errorMessage={formValues.purpose.errorMessage}
-                onChange={(e) => handleChange(e, 'purpose')}
-                limit={100}
-            />
-
 
             <Input type="submit" value="Submit" className="btn btn-primary mb-3"></Input>
         </form>
