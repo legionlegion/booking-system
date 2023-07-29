@@ -200,18 +200,19 @@ const AvailabilityTable = () => {
 
     
 
-return loading ? 
-  <div>Loading...</div>:
-    (
-      <>
-        <Button onClick={showCurrentWeek}>
-          <ArrowLeft />Previous Week
-        </Button>
-        <Button onClick={showNextWeek}>
-          Next Week<ArrowRight />
-        </Button>
-        <div style={{ height: 500, width: '100%', overflowY: 'auto' }}>
-          <DataGrid
+    return loading ? 
+    <div>Loading...</div>:
+      (
+        <>
+          <Button onClick={showCurrentWeek}>
+            <ArrowLeft />Previous Week
+          </Button>
+          <Button onClick={showNextWeek}>
+            Next Week<ArrowRight />
+          </Button>
+          <h2>{currentWeekVisible ? 'Current Week' : 'Next Week'}</h2>
+          <div style={{ height: 500, width: '100%', overflowY: 'auto' }}>
+            <DataGrid
             columns={columnsData}
             rows={rowsData}
             getCellClassName={getCellClassName}
