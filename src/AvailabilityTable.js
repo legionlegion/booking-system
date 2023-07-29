@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Icon, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Button } from '@mui/material';
 import { ArrowLeft, ArrowRight } from '@mui/icons-material';
+import { DataGrid } from '@mui/x-data-grid';
 
 const AvailabilityTable = () => {
   const [loading, setLoading] = useState(true);
   const columns = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  const [currentWeekRows, setCurrentWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill({ available: true, name: '' })));
-  const [nextWeekRows, setNextWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill({ available: true, name: '' })));
+  const [currentWeekRows, setCurrentWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill({occupied: 0, purpose: null})));
+  const [nextWeekRows, setNextWeekRows] = useState(new Array(7).fill().map(() => new Array(24).fill({occupied: 0, purpose: null})));
   const [currentWeekVisible, setCurrentWeekVisible] = useState(true);
 
   const currentDate = new Date();
@@ -45,7 +46,7 @@ const AvailabilityTable = () => {
       .then((response) => response.json())
       .then((data) => {
         data.forEach(entry => {
-          fillArray(entry.start_time, entry.end_time, entry.name, currentWeekRows, nextWeekRows);
+          fillArray(entry.start_time, entry.end_time, entry.purpose, currentWeekRows, nextWeekRows);
         });
         let newCurr = JSON.parse(JSON.stringify(currentWeekRows));
         let newNext = JSON.parse(JSON.stringify(nextWeekRows));
@@ -59,52 +60,52 @@ const AvailabilityTable = () => {
       })
   }, [])
 
-  function fillArray(start, end, name, currentWeekRows, nextWeekRows) {
+  function fillArray(start, end, purpose, currentWeekRows, nextWeekRows) {
     let startDate = new Date(start);
     let endDate = new Date(end);
-  
+
     let currentWeekEnd = new Date(nextWeekStart);
-  
+
     // Find out if the booking ends in the next week
     let crossesIntoNextWeek = endDate > currentWeekEnd;
-  
+
     // Create a temporary end date for the current week
     let tempEndDate = crossesIntoNextWeek ? currentWeekEnd : endDate;
-  
-    // First fill the current week's rows, pass name along with other parameters
-    fillRows(startDate, tempEndDate, name, currentWeekRows);
-  
+
+    // First fill the current week's rows
+    fillRows(startDate, tempEndDate, purpose, currentWeekRows);
+
     // If the booking crosses into the next week, fill the next week's rows
     if (crossesIntoNextWeek) {
       // Create a temporary start date for the next week. 
       // If the booking starts in the current week, it should be the start of the next week
       // If the booking starts in the next week, it should be the start of the booking
       let tempStartDate = startDate < currentWeekEnd ? new Date(nextWeekStart) : startDate;
-  
-      // Fill the next week's rows, pass name along with other parameters
-      fillRows(tempStartDate, endDate, name, nextWeekRows);
+
+      // Fill the next week's rows
+      fillRows(tempStartDate, endDate, purpose, nextWeekRows);
     }
   }
-  
-  function fillRows(start, end, name, rows) {
+
+  function fillRows(start, end, purpose, rows) {
     // Get the starting and ending day and hour
     let startDate = new Date(start);
     let endDate = new Date(end);
-  
+
     let startDay = startDate.getDay() - 1; // Adjusted to have Mon as 0, Tues as 1 etc
     if (startDay == -1) startDay = 6;
     let startHour = startDate.getHours();
-  
+
     // Get the difference in hours
     let diffInHours = (endDate - startDate) / (1000 * 60 * 60);
-  
+
     // Loop through the days and hours, updating the array
     let currentDay = startDay;
     let currentHour = startHour;
     for (let i = 0; i < diffInHours; i++) {
-      rows[currentDay][currentHour] = { available: false, name: name };
+      rows[currentDay][currentHour] = { occupied: 1, purpose };
       currentHour++;
-  
+
       if (currentHour === 24) { // If we've reached the end of the day
         currentHour = 0;
         currentDay++;
@@ -113,10 +114,92 @@ const AvailabilityTable = () => {
         }
       }
     }
-  }  
+  }
 
-  return loading ?
-    <div>Loading...</div> :
+  const slotColumnCommonFields = {
+    sortable: false,
+    filterable: false,
+    minWidth: 140,
+    colSpan: (params) => {
+      const index = parseInt(params.field.split("_")[1]);
+      const rows = params.id < 7 ? currentWeekRows : nextWeekRows;
+      const day = params.id < 7 ? params.id : params.id - 7;
+      let colSpan = 1;
+      let cellValue = rows[day][index];
+      for (let i = index + 1; i < 24; i++) {
+        if (cellValue.occupied && cellValue.purpose === rows[day][i].purpose) {
+          colSpan += 1;
+        } else {
+          break;
+        }
+      }
+      return colSpan;
+    },
+  };
+
+  // Prepare your data for the grid, create column structure
+  const columnsData = [
+    { field: 'date', headerName: 'Date', width: 100, disableColumnMenu: true, disableColumnSelector: true, sortable: false },
+    { field: 'day', headerName: 'Day / Time', width: 100, disableColumnMenu: true, disableColumnSelector: true, sortable: false }
+  ]
+  .concat(Array.from(Array(24).keys()).map(hour => ({
+    field: `hour_${hour}`,
+    headerName: `${hour.toString().padStart(2, '0')}:00`,
+    valueGetter: (params) => params.row[`hour_${hour}`],
+    ...slotColumnCommonFields
+  })))
+  const rowsData = currentWeekVisible
+  ? currentWeekRows.map((day, i) => ({
+      id: i,
+      date: new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      day: columns[i],
+      ...day.reduce((prev, curr, j) => ({ ...prev, [`hour_${j}`]: curr.occupied ? curr.purpose : '' }), {})
+    }))
+  : nextWeekRows.map((day, i) => ({
+      id: i + 7,
+      date: new Date(currentDate.getTime() + (i + 7 - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      day: columns[i],
+      ...day.reduce((prev, curr, j) => ({ ...prev, [`hour_${j}`]: curr.occupied ? curr.purpose : '' }), {})
+    }))
+    
+
+    const getCellClassName = (params) => {
+      if (params.field !== 'date' && params.field !== 'day') {
+        const hour = parseInt(params.field.split('_')[1]);
+        const day = params.id < 7 ? params.id : params.id - 7;
+        const rows = params.id < 7 ? currentWeekRows : nextWeekRows;
+        if (rows[day][hour].occupied === 1) {
+          const purpose = rows[day][hour].purpose;
+          switch(purpose){
+            case 'Ulti':
+            case 'Badminton':
+            case 'Dodgeball':
+            case 'Spikeball':
+            case 'Table Tennis':
+            case 'Tembu Netball':
+            case 'R4D':
+            case 'Captains Ball':
+            case 'Floorball':
+            case 'Netball':
+            case 'Tchoukball':
+              return `${purpose.replace(/\s+/g, '').toLowerCase()}Cell`;
+            case 'Basketball (W)':
+              return 'basketballwCell';
+            case 'Basketball (M)':
+              return 'basketballmCell';
+            default:
+              return 'busyCell';
+          }
+        }
+        return 'availableCell';
+      }
+      return '';
+    };
+
+    
+
+return loading ? 
+  <div>Loading...</div>:
     (
       <>
         <Button onClick={showCurrentWeek}>
@@ -125,113 +208,68 @@ const AvailabilityTable = () => {
         <Button onClick={showNextWeek}>
           Next Week<ArrowRight />
         </Button>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }} aria-label="availability table">
-            <TableHead>
-              <TableRow>
-                <TableCell size="small">Date</TableCell>
-                <TableCell size="small">Day / Time</TableCell>
-                {Array.from(Array(24).keys()).map(hour =>
-                  <TableCell size="small" key={hour}>{hour.toString().padStart(2, '0')}:00</TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            {currentWeekVisible ?
-              <TableBody>
-                {currentWeekRows.map((day, i) => {
-                  let currentColSpan = 1;
-                  let currentName = day[0].name;
-                  let currentAvailable = day[0].available;
-
-                  return (
-                    <TableRow key={i}>
-                      <TableCell size="small">
-                        {new Date(currentDate.getTime() + (i - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell size="small">{columns[i]}</TableCell>
-                      {day.map((hour, j, arr) => {
-                        if (j === 0) return;
-
-                        if (hour.name === currentName && hour.available === currentAvailable) {
-                          currentColSpan += 1;
-                          if (j < arr.length - 1) return null; // If the current hour is not the last, don't render a cell yet
-                        }
-
-                        let cell = (
-                          <TableCell
-                            key={j - currentColSpan}
-                            size="small"
-                            colSpan={currentColSpan}
-                            sx={{
-                              backgroundColor: currentAvailable ? '#90EE90' : '#b90606',
-                              textAlign: 'center',
-                              fontSize: '10px',
-                            }}
-                          >
-                            {!currentAvailable && currentName}
-                          </TableCell>
-                        );
-
-                        currentColSpan = 1;
-                        currentName = hour.name;
-                        currentAvailable = hour.available;
-
-                        return cell;
-                      })}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-              :
-              <TableBody>
-                {nextWeekRows.map((day, i) => {
-                  let currentColSpan = 1;
-                  let currentName = day[0].name;
-                  let currentAvailable = day[0].available;
-
-                  return (
-                    <TableRow key={i}>
-                      <TableCell size="small">
-                        {new Date(currentDate.getTime() + (i + 7 - daysUntilMonday) * 24 * 60 * 60 * 1000).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell size="small">{columns[i]}</TableCell>
-                      {day.map((hour, j, arr) => {
-                        if (j === 0) return;
-
-                        if (hour.name === currentName && hour.available === currentAvailable) {
-                          currentColSpan += 1;
-                          if (j < arr.length - 1) return null; // If the current hour is not the last, don't render a cell yet
-                        }
-
-                        let cell = (
-                          <TableCell
-                            key={j - currentColSpan}
-                            size="small"
-                            colSpan={currentColSpan}
-                            sx={{
-                              backgroundColor: currentAvailable ? '#90EE90' : '#b90606',
-                              textAlign: 'center',
-                              fontSize: '10px',
-                            }}
-                          >
-                            {!currentAvailable && currentName}
-                          </TableCell>
-                        );
-
-                        currentColSpan = 1;
-                        currentName = hour.name;
-                        currentAvailable = hour.available;
-
-                        return cell;
-                      })}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>}
-          </Table>
-        </TableContainer>
+        <div style={{ height: 500, width: '100%', overflowY: 'auto' }}>
+          <DataGrid
+            columns={columnsData}
+            rows={rowsData}
+            getCellClassName={getCellClassName}
+            sx={{
+              '& .busyCell': {
+                backgroundColor: 'red',
+              },
+              '& .availableCell': {
+                backgroundColor: 'lightgreen',
+              },
+              '& .ultiCell': {
+                backgroundColor: 'orange',
+              },
+              '& .badmintonCell': {
+                backgroundColor: 'lightblue',
+              },
+              '& .dodgeballCell': {
+                backgroundColor: 'green',
+              },
+              '& .spikeballCell': {
+                backgroundColor: 'yellow',
+              },
+              '& .tabletennisCell': {
+                backgroundColor: 'purple',
+              },
+              '& .tembunetballCell': {
+                backgroundColor: 'brown',
+              },
+              '& .r4dCell': {
+                backgroundColor: 'pink',
+              },
+              '& .captainsballCell': {
+                backgroundColor: 'violet',
+              },
+              '& .basketballwCell': {
+                backgroundColor: 'lightseagreen',
+              },
+              '& .basketballmCell': {
+                backgroundColor: 'cyan',
+              },
+              '& .floorballCell': {
+                backgroundColor: 'magenta',
+              },
+              '& .netballCell': {
+                backgroundColor: 'grey',
+              },
+              '& .tchoukballCell': {
+                backgroundColor: 'Fuchsia',
+              },
+            }}
+            autoHeight
+            disableRowSelectionOnClick
+            hideFooter
+            showCellVerticalBorder
+            showColumnVerticalBorder
+            disableColumnReorder    
+          />
+        </div>
       </>
-    )
+    );
 };
 
 export default AvailabilityTable;
