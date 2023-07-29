@@ -119,6 +119,8 @@ const AvailabilityTable = () => {
   const slotColumnCommonFields = {
     sortable: false,
     filterable: false,
+    disableColumnMenu: true,
+    disableColumnSelector: true,
     minWidth: 140,
     colSpan: (params) => {
       const index = parseInt(params.field.split("_")[1]);
