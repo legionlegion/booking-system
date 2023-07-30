@@ -246,7 +246,7 @@ const BookingForm = () => {
     };
 
     return (
-        <form autoComplete='off' onSubmit={handleFormSubmit}>
+        <form autoComplete='off' onSubmit={handleFormSubmit} data-testid='booking-form'>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
                     <TextField 
@@ -261,6 +261,7 @@ const BookingForm = () => {
                         onChange={(e) => handleChange(e, 'name')}
                         autoComplete="name"
                         inputProps={{ maxLength: 20 }}
+                        data-testid='name-field'                       
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -272,6 +273,7 @@ const BookingForm = () => {
                             value={formValues.purpose.value}
                             onChange={(e) => handleChange(e, 'purpose')}
                             autoComplete="purpose"
+                            data-testid='purpose-field'
                         >
                             <MenuItem value="">
                                 <em>None</em>
@@ -293,6 +295,7 @@ const BookingForm = () => {
                             label="Unit Level"
                             value={formValues.unitLevel.value}
                             onChange={(e) => handleChange(e, 'unitLevel')}
+                            data-testid='unitlevel-field'
                         >
                             <MenuItem value="">
                                 <em>None</em>
@@ -313,6 +316,7 @@ const BookingForm = () => {
                             value={formValues.unitRoom.value} 
                             onChange={(e) => handleChange(e, 'unitRoom')}
                             error={formValues.unitRoom.error}
+                            data-testid='unitroom-field'
                         >
                             <MenuItem value="">
                                 <em>None</em>
@@ -335,6 +339,7 @@ const BookingForm = () => {
                             value={formValues.unitLetter.value} 
                             onChange={(e) => handleChange(e, 'unitLetter')}
                             error={formValues.unitLetter.error}
+                            data-testid='unitletter-field'
                         >
                             <MenuItem value="">
                                 <em>None</em>
@@ -356,14 +361,16 @@ const BookingForm = () => {
                             onOpen={() => setOpenStart(true)}
                             onClose={() => setOpenStart(false)}
                             label="Start date"
+                            data-testid='startdate-field'
                             value={formValues.startDate.value}
                             onChange={(e) => handleChange(e, 'startDate')}
                             disablePast
+                            sx={{ width: '100%' }}
                             slotProps={{
                                 textField: {
                                     error: formValues.startDate.error,
                                     helperText: formValues.startDate.error ? formValues.startDate.errorMessage : "",
-                                    readOnly: true,
+                                    readOnly: false, // Allow user interaction
                                     onClick: (e) => setOpenStart(true)
                                 }
                             }}
@@ -372,13 +379,15 @@ const BookingForm = () => {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <TimePicker
-                            title="Start Time"
-                            value={formValues.startTime.value}
-                            onChange={(e) => handleChange(e, 'startTime')}
-                            error={formValues.startTime.error}
-                            helperText={formValues.startTime.errorMessage}
-                        />
+                    <TimePicker
+                        title="Start Time"
+                        value={formValues.startTime.value}
+                        onChange={(e) => handleChange(e, 'startTime')}
+                        sx={{ width: '100%' }}
+                        error={formValues.startTime.error}
+                        helperText={formValues.startTime.errorMessage}
+                        renderInput={(params) => <TextField {...params} label="Start Time" />}
+                    />
                     </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -388,14 +397,16 @@ const BookingForm = () => {
                             onOpen={() => setOpenEnd(true)}
                             onClose={() => setOpenEnd(false)}
                             label="End date"
+                            data-testid='enddate-field'
                             value={formValues.endDate.value}
                             onChange={(e) => handleChange(e, 'endDate')}
                             disablePast
+                            sx={{ width: '100%' }}
                             slotProps={{
                                 textField: {
                                     error: formValues.endDate.error,
                                     helperText: formValues.endDate.error ? formValues.endDate.errorMessage : "",
-                                    readOnly: true,
+                                    readOnly: false, // Allow user interaction
                                     onClick: (e) => setOpenEnd(true)
                                 }
                             }}
@@ -406,8 +417,10 @@ const BookingForm = () => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimePicker
                             title="End Time"
+                            data-testid='endtime-field'
                             value={formValues.endTime.value}
                             onChange={(e) => handleChange(e, 'endTime')}
+                            sx={{ width: '100%' }}
                             error={formValues.endTime.error}
                             helperText={formValues.endTime.errorMessage}
                         />

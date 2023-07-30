@@ -183,28 +183,53 @@ function Navbar() {
         )}
         {user.jwtToken === "" ? (
           <form onSubmit={handleSubmit}>
-            <TextField
-              variant="outlined"
-              placeholder="Username"
-              value={usernameLogin}
-              onChange={(event) => setUsernameLogin(event.target.value)}
-              sx={{ marginRight: '10px' }}
-              inputProps={{ maxLength: 10 }}
-            />
-            <TextField
-              variant="outlined"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              sx={{ marginRight: '10px' }}
-              inputProps={{ maxLength: 10 }}
-            />
-            <Button variant="contained" color="secondary" type="submit" sx={{ marginRight: '10px' }}>
-              Login
+<TextField
+    variant="outlined"
+    placeholder="Username"
+    value={usernameLogin}
+    onChange={(event) => setUsernameLogin(event.target.value)}
+    sx={{
+        marginRight: '10px',
+        '& .MuiOutlinedInput-root': {
+            backgroundColor: '#fff', // Set the background color to white
+            borderRadius: '8px', // Set the border radius to make it rounded
+        },
+        color: '#333', // Set the text color to make it darker
+    }}
+    inputProps={{ maxLength: 10, "data-testid": "username-field" }}
+/>
+<TextField
+    variant="outlined"
+    type="password"
+    placeholder="Password"
+    value={password}
+    onChange={(event) => setPassword(event.target.value)}
+    sx={{
+        marginRight: '10px',
+        '& .MuiOutlinedInput-root': {
+            backgroundColor: '#fff', // Set the background color to white
+            borderRadius: '8px', // Set the border radius to make it rounded
+        },
+        color: '#333', // Set the text color to make it darker
+    }}
+    inputProps={{ maxLength: 10, "data-testid": "password-field" }}
+/>
+            <Button 
+                variant="contained" 
+                color="secondary" 
+                type="submit" 
+                sx={{ marginRight: '10px' }}
+                data-testid="login-button" // And here
+            >
+                Login
             </Button>
-            <Button variant="contained" color="secondary" type="button" onClick={handleRegister}>
-              Register
+            <Button 
+                variant="contained" 
+                color="secondary" 
+                type="button" 
+                onClick={handleRegister}
+            >
+                Register
             </Button>
           </form>
         ) : (
