@@ -119,6 +119,16 @@ const BookingManagement = () => {
           console.log(err);
         })
     }
+    if (type == "recurring") {
+      fetch(`${process.env.REACT_APP_BACKEND}/admin/delete-recurring`, requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setUpdated(true);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    }
   })
 
   return (
@@ -171,7 +181,7 @@ const BookingManagement = () => {
                     <td>{booking.facility}</td>
                     <td>{booking.purpose}</td>
                     <td>
-                      <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "approved")}>
+                      <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "recurring")}>
                         <CloseIcon></CloseIcon>
                       </Button>
                     </td>
