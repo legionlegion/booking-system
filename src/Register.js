@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import FormInput from "./FormInput";
-import { Box, Button, Checkbox, FormControlLabel } from "@mui/material";
+import { Box, Button, Checkbox, Container, FormControlLabel, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
@@ -53,28 +52,38 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className='container'>
-      <h2>Register</h2>
+    <Container maxWidth="sm">
+      <Box mt={4} mb={2}>
+        <h2>Register</h2>
+      </Box>
       <form onSubmit={handleSubmit}>
-        <FormInput
-          title="Username"
-          type="text"
-          name="username"
-          id="username"
-          onChange={(event) => setUsername(event.target.value)}
-          autoComplete="username"
-          limit={10}
-        />
-        <FormInput
-          title="Password"
-          type="password"
-          name="password"
-          id="password"
-          onChange={(event) => setPassword(event.target.value)}
-          autoComplete="new-password"
-          limit={10}
-        />
-        <Box>
+        <Box mt={2}>
+          <TextField
+            id="username"
+            label="Username"
+            type="text"
+            variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+            fullWidth
+            inputProps={{ maxLength: 10 }}
+          />
+        </Box>
+        <Box mt={2}>
+          <TextField
+            id="password"
+            label="Password"
+            type="password"
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="new-password"
+            fullWidth
+            inputProps={{ maxLength: 10 }}
+          />
+        </Box>
+        <Box mt={2}>
           <FormControlLabel
             control={
               <Checkbox
@@ -85,13 +94,13 @@ const RegisterPage = () => {
             label="I am an admin (for demo purposes)"
           />
         </Box>
-        <Box>
+        <Box mt={2}>
           <Button type="submit" variant="contained" color="primary">
             Register
           </Button>
         </Box>
       </form>
-    </div>
+    </Container>
   );
 };
 

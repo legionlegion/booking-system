@@ -6,6 +6,7 @@ import Homepage from './Homepage';
 import Navbar from './Navbar';
 import BookingManagement from './BookingManagement';
 import RegisterPage from './Register';
+import { Container } from '@mui/material';
 
 // Created context
 export const UserContext = createContext();
@@ -55,7 +56,7 @@ function App() {
   return (
     <div>
       <Navbar />
-      <div className="container">
+      <Container>
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route
@@ -71,7 +72,7 @@ function App() {
             element={<RegisterPage />}
           />
         </Routes>
-      </div>
+      </Container>
     </div>
   );
 }

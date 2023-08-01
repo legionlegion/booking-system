@@ -6,8 +6,9 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 
 const BookingManagement = () => {
-  const [bookings, setBookings] = useState([]);
-  const [allBookings, setAllBookings] = useState([]);
+  const [requestedbookings, setRequestedBookings] = useState([]);
+  const [approvedbookings, setApprovedBookings] = useState([]);
+  const [recurringBookings, setRecurringBookings] = useState([]);
   const { user } = useContext(UserContext);
   const [updated, setUpdated] = useState(false);
 
@@ -29,37 +30,18 @@ const BookingManagement = () => {
       headers: headers,
     }
 
-    fetch(`${process.env.REACT_APP_BACKEND}/admin/booking-management`, requestOptions)
+    fetch(`${process.env.REACT_APP_BACKEND}/admin/booking-management`, requestOptions) // list of requested bookings by user or all users
       .then((response) => response.json())
       .then((data) => {
-        setBookings(data);
+        console.log("All bookings: ", data)
+        setApprovedBookings(data.approvedbookings)
+        setRecurringBookings(data.recurringbookings)
+        setRequestedBookings(data.requestedbookings)
         setUpdated(false);
       })
       .catch(err => {
         console.log(err);
       })
-
-    if (user.isAdmin) {
-      fetch(`${process.env.REACT_APP_BACKEND}/admin/all-bookings`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          setAllBookings(data);
-          setUpdated(false);
-        })
-        .catch(err => {
-          console.log(err);
-        })
-    } else {
-      fetch(`${process.env.REACT_APP_BACKEND}/admin/user-bookings`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          setAllBookings(data);
-          setUpdated(false);
-        })
-        .catch(err => {
-          console.log(err);
-        })
-    }
   }, [user.jwtToken, updated, navigate])
 
   const approveBooking = useCallback((booking) => {
@@ -143,6 +125,63 @@ const BookingManagement = () => {
     <Fragment>
       <Grid container>
         <Grid item xs={12}>
+          <h3>Recurring Bookings</h3>
+          <table className='table'>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Unit</th>
+                <th>Start Date</th>
+                <th>Start Time</th>
+                <th>End Date</th>
+                <th>End Time</th>
+                <th>Facility</th>
+                <th>Purpose</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                recurringBookings ? recurringBookings.map((booking, index) => (
+                  <tr key={index}>
+                    <td>{booking.username}</td>
+                    <td>{booking.name}</td>
+                    <td>{booking.unit_number}</td>
+                    <td>{new Date(booking.start_date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}</td>
+                    <td>{new Date(booking.start_time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                    <td>{new Date(booking.end_date).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}</td>
+                    <td>{new Date(booking.end_time).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}</td>
+                    <td>{booking.facility}</td>
+                    <td>{booking.purpose}</td>
+                    <td>
+                      <Button variant="outlined" color="error" onClick={() => deleteBooking(booking, "approved")}>
+                        <CloseIcon></CloseIcon>
+                      </Button>
+                    </td>
+                  </tr>
+                )) : null
+              }
+            </tbody>
+          </table>
+        </Grid>
+        <Grid item xs={12}>
           <h3>Existing Bookings</h3>
           <table className='table'>
             <thead>
@@ -161,7 +200,7 @@ const BookingManagement = () => {
             </thead>
             <tbody>
               {
-                allBookings ? allBookings.map((booking, index) => (
+                approvedbookings ? approvedbookings.map((booking, index) => (
                   <tr key={index}>
                     <td>{booking.username}</td>
                     <td>{booking.name}</td>
@@ -213,12 +252,14 @@ const BookingManagement = () => {
                 <th>End Time</th>
                 <th>Facility</th>
                 <th>Purpose</th>
+                <th>Recurring</th>
+                <th>Recurring Weeks</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {
-                bookings ? bookings.map((booking, index) => (
+                requestedbookings ? requestedbookings.map((booking, index) => (
                   <tr key={index}>
                     <td>{booking.username}</td>
                     <td>{booking.name}</td>
@@ -245,6 +286,12 @@ const BookingManagement = () => {
                     })}</td>
                     <td>{booking.facility}</td>
                     <td>{booking.purpose}</td>
+                    <td>
+                      {booking.recurring ? "Yes" : "No"}
+                    </td>
+                    <td>
+                      {booking.recurring_weeks}
+                    </td>
                     <td>
                       {user.isAdmin
                         ?

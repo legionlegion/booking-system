@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
-import FormInput from "./FormInput";
 import TimePicker from "./Timepicker";
 import dayjs from 'dayjs';
-import { Grid, TextField } from '@mui/material';
+import { Button, Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 import { Input } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -10,15 +9,16 @@ import { UserContext } from "./App";
 import { useNavigate } from "react-router-dom";
 import MenuItem from '@mui/material/MenuItem';
 import { FormControl, InputLabel, FormHelperText } from '@mui/material';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 
 const BookingForm = () => {
     const [openStart, setOpenStart] = useState(false);
     const [openEnd, setOpenEnd] = useState(false);
+    const [recurring, setRecurring] = useState(false);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
-    const handleSubmit = (newName, newStartDate, newEndDate, newUnitNumber, newStartTime, newEndTime, newPurpose) => {
+    const handleSubmit = (newName, newStartDate, newEndDate, newUnitNumber, newStartTime, newEndTime, newPurpose, recurring_weeks) => {
 
         // Create Date objects from inputs
         let startDate = new Date(newStartDate);
@@ -55,6 +55,8 @@ const BookingForm = () => {
             purpose: newPurpose,
             username: user.username,
             facility: "MPSH",
+            recurring: recurring,
+            recurring_weeks: recurring ? recurring_weeks : 0,
         }
 
         // validation passed, submit
@@ -134,6 +136,11 @@ const BookingForm = () => {
             value: "",
             error: false,
             errorMessage: "You must state a purpose"
+        },
+        weeks: {
+            value: "",
+            error: false,
+            errorMessage: "Enter a duration"
         }
     });
 
@@ -187,10 +194,16 @@ const BookingForm = () => {
         setFormValues(newFormValues);
     };
 
-    useEffect(() => {
-        // Update errors based on formValues.unitRoom and formValues.unitLetter values
-        const newFormValues = {...formValues}; // Make a copy of formValues state
-    
+    const handleRoomChange = (newRoom) => {
+        const newFormValues = {
+            ...formValues,
+            "unitRoom": {
+                value: newRoom,
+                error: false,
+                errorMessage: ""
+            }
+        };
+
         if (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12') {
             // Check if unitLetter has a value
             if (!formValues.unitLetter.value) {
@@ -206,9 +219,22 @@ const BookingForm = () => {
             newFormValues.unitLetter.errorMessage = '';
             newFormValues.unitLetter.value = '';  // Reset unitLetter value to empty
         }
-    
+
         setFormValues(newFormValues);
-    }, [formValues.unitRoom.value, formValues.unitLetter.value]);
+    };
+
+    const handleRecurring = (recurring) => {
+        setRecurring(recurring);
+        const newFormValues = { ...formValues };
+        if (recurring) {
+            newFormValues.weeks.error = true;
+            newFormValues.weeks.errorMessage = 'Enter a duration';
+        } else {
+            newFormValues.weeks.error = false;
+            newFormValues.weeks.errorMessage = "";
+        }
+        setFormValues(newFormValues);
+    }
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -216,11 +242,13 @@ const BookingForm = () => {
         let newFormValues = { ...formValues };
 
         Object.keys(formValues).forEach((key) => {
-                    // Skip validation for unitLetter if room number is not '01', '11', or '12'
+            // Skip validation for unitLetter if room number is not '01', '11', or '12'
             if (key === 'unitLetter' && !['01', '11', '12'].includes(formValues.unitRoom.value)) {
                 return;
             }
-
+            if (key == 'weeks' && !recurring) {
+                return;
+            }
             const field = formValues[key];
             if (!field.value) {
                 newFormValues[key].error = true;
@@ -231,17 +259,18 @@ const BookingForm = () => {
         if (!isError) {
             // Combine the unit level, room, and letter into one string
             let newUnitNumber = `#${formValues.unitLevel.value}-${formValues.unitRoom.value}`;
-            if(formValues.unitLetter.value) {
+            if (formValues.unitLetter.value) {
                 newUnitNumber += formValues.unitLetter.value;
             }
-            
+
             handleSubmit(formValues.name.value,
-                         formValues.startDate.value,
-                         formValues.endDate.value,
-                         newUnitNumber,
-                         formValues.startTime.value,
-                         formValues.endTime.value,
-                         formValues.purpose.value);
+                formValues.startDate.value,
+                formValues.endDate.value,
+                newUnitNumber,
+                formValues.startTime.value,
+                formValues.endTime.value,
+                formValues.purpose.value,
+                formValues.weeks.value);
         }
     };
 
@@ -249,7 +278,7 @@ const BookingForm = () => {
         <form autoComplete='off' onSubmit={handleFormSubmit} data-testid='booking-form'>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
-                    <TextField 
+                    <TextField
                         id="name"
                         type="text"
                         label="Name"
@@ -261,7 +290,7 @@ const BookingForm = () => {
                         onChange={(e) => handleChange(e, 'name')}
                         autoComplete="name"
                         inputProps={{ maxLength: 20 }}
-                        data-testid='name-field'                       
+                        data-testid='name-field'
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -282,12 +311,12 @@ const BookingForm = () => {
                                 <MenuItem key={purpose} value={purpose}>{purpose}</MenuItem>
                             ))}
                         </Select>
-                        {formValues.purpose.error && 
-                        <FormHelperText>{formValues.purpose.errorMessage}</FormHelperText>}
+                        {formValues.purpose.error &&
+                            <FormHelperText>{formValues.purpose.errorMessage}</FormHelperText>}
                     </FormControl>
                 </Grid>
             </Grid>
-            <Grid container spacing={3} style={{ marginTop: '1px'}}>
+            <Grid container spacing={3} style={{ marginTop: '1px' }}>
                 <Grid item xs={4}>
                     <FormControl variant="outlined" fullWidth error={formValues.unitLevel.error}>
                         <InputLabel>Unit Level</InputLabel>
@@ -297,63 +326,54 @@ const BookingForm = () => {
                             onChange={(e) => handleChange(e, 'unitLevel')}
                             data-testid='unitlevel-field'
                         >
-                            <MenuItem value="">
-                                <em>None</em>
-                            </MenuItem>
                             {Array.from({ length: 15 }, (_, i) => i + 3).map((level) => (
                                 <MenuItem key={level} value={level}>{level}</MenuItem>
                             ))}
                         </Select>
-                        {formValues.unitLevel.error && 
-                        <FormHelperText>{formValues.unitLevel.errorMessage}</FormHelperText>}
+                        {formValues.unitLevel.error &&
+                            <FormHelperText>{formValues.unitLevel.errorMessage}</FormHelperText>}
                     </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-                    <FormControl variant="outlined"  fullWidth error={formValues.unitRoom.error}>
+                    <FormControl variant="outlined" fullWidth error={formValues.unitRoom.error}>
                         <InputLabel>Unit Room</InputLabel>
-                        <Select 
+                        <Select
                             label="Unit Room"
-                            value={formValues.unitRoom.value} 
+                            value={formValues.unitRoom.value}
                             onChange={(e) => handleChange(e, 'unitRoom')}
                             error={formValues.unitRoom.error}
                             data-testid='unitroom-field'
                         >
-                            <MenuItem value="">
-                                <em>None</em>
-                            </MenuItem>
                             {Array.from({ length: 27 }, (_, i) => (i + 1).toString().padStart(2, '0')).map((room) => (
                                 <MenuItem key={room} value={room}>{room}</MenuItem>
                             ))}
                         </Select>
-                        {formValues.unitRoom.error && 
-                        <FormHelperText>{formValues.unitRoom.errorMessage}</FormHelperText>}
+                        {formValues.unitRoom.error &&
+                            <FormHelperText>{formValues.unitRoom.errorMessage}</FormHelperText>}
                     </FormControl>
                 </Grid>
                 <Grid item xs={4}>
                     <FormControl variant="outlined" fullWidth disabled={formValues.unitRoom.value !== '01' && formValues.unitRoom.value !== '11' && formValues.unitRoom.value !== '12'}
-                    error={formValues.unitLetter.error && (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12')}
+                        error={formValues.unitLetter.error && (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12')}
                     >
                         <InputLabel>Letter</InputLabel>
-                        <Select 
+                        <Select
                             label="Letter"
-                            value={formValues.unitLetter.value} 
+                            value={formValues.unitLetter.value}
                             onChange={(e) => handleChange(e, 'unitLetter')}
                             error={formValues.unitLetter.error}
                             data-testid='unitletter-field'
                         >
-                            <MenuItem value="">
-                                <em>None</em>
-                            </MenuItem>
                             {['A', 'B', 'C', 'D', 'E', 'F'].map((letter) => (
                                 <MenuItem key={letter} value={letter}>{letter}</MenuItem>
                             ))}
                         </Select>
-                        {formValues.unitLetter.error && (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12') && 
-                        <FormHelperText>{formValues.unitLetter.errorMessage}</FormHelperText>}
+                        {formValues.unitLetter.error && (formValues.unitRoom.value === '01' || formValues.unitRoom.value === '11' || formValues.unitRoom.value === '12') &&
+                            <FormHelperText>{formValues.unitLetter.errorMessage}</FormHelperText>}
                     </FormControl>
                 </Grid>
             </Grid>
-            <Grid container spacing={3} style={{ marginTop: '1px'}}>
+            <Grid container spacing={3} style={{ marginTop: '1px' }}>
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
@@ -379,15 +399,15 @@ const BookingForm = () => {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <TimePicker
-                        title="Start Time"
-                        value={formValues.startTime.value}
-                        onChange={(e) => handleChange(e, 'startTime')}
-                        sx={{ width: '100%' }}
-                        error={formValues.startTime.error}
-                        helperText={formValues.startTime.errorMessage}
-                        renderInput={(params) => <TextField {...params} label="Start Time" />}
-                    />
+                        <TimePicker
+                            title="Start Time"
+                            value={formValues.startTime.value}
+                            onChange={(e) => handleChange(e, 'startTime')}
+                            sx={{ width: '100%' }}
+                            error={formValues.startTime.error}
+                            helperText={formValues.startTime.errorMessage}
+                            renderInput={(params) => <TextField {...params} label="Start Time" />}
+                        />
                     </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
@@ -426,9 +446,40 @@ const BookingForm = () => {
                         />
                     </LocalizationProvider>
                 </Grid>
+                <Grid container item md={12} sx={{ paddingTop: '0px !important', mb: 2}} spacing={2}>
+                    <Grid item xs={10}>
+                        <FormControl fullWidth error={formValues.weeks.error}>
+                            <InputLabel>Recurring Weeks</InputLabel>
+                            <Select
+                                label='Recurring Weeks'
+                                value={formValues.weeks.value}
+                                disabled={!recurring}
+                                onChange={(e) => handleChange(e, 'weeks')}
+                            >
+                                {Array.from({ length: 15 }, (_, i) => i + 1).map((week) => (
+                                    <MenuItem key={week} value={week}>{week}</MenuItem>
+                                ))}
+                            </Select>
+                            {formValues.weeks.error &&
+                                <FormHelperText>{formValues.weeks.errorMessage}</FormHelperText>}
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={2}>
+                        <FormControl>
+                            <FormControlLabel
+                                control={<Checkbox
+                                    onChange={(e) => handleRecurring(e.target.checked)}
+                                />}
+                                label="Recurring" />
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button type="submit" variant="contained" color="primary">
+                            Submit
+                        </Button>
+                    </Grid>
+                </Grid>
             </Grid>
-
-            <Input type="submit" value="Submit" className="btn btn-primary mb-3"></Input>
         </form>
     );
 };

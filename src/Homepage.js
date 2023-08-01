@@ -13,7 +13,6 @@ function Homepage() {
   return (
     <Fragment>
       <div style={{ margin: '15px' }}>
-        <h3>Bookings</h3>
       </div>
       <AvailabilityTable></AvailabilityTable>
       <hr />
