@@ -1,23 +1,31 @@
 # Book4U
 
-This is a full-stack project hosted [here](https://syal-2ae9b.firebaseapp.com/).
-
-## Project Scope
-
-A streamlined facility booking system for non-registered campus facilities for students who need to book spaces for group meetings, events, or projects.
+Book4U is a streamlined facility booking system designed for non-registered campus facilities. It provides a convenient way for students to reserve spaces for group meetings, events, or projects. The project is live and accessible at [https://syal-2ae9b.firebaseapp.com/](https://syal-2ae9b.firebaseapp.com/).
 
 ## Problem
 
-The booking schedule of RC4’s Multiple Purpose Sports Hall (MPSH) is updated manually via Google Sheets. Residents who wish to book the MPSH must first check the Google excel timetable, then text the POC via Telegram the booking details such as booking timing, number of users, purpose etc, to a student representative who is replaced yearly. This representative will then manually update the Google Sheets with the booking to reserve it.
+At NUS RC4 (Residential College 4), the booking process for the Multiple Purpose Sports Hall (MPSH) was manual and required users to check a Google Sheets timetable and communicate booking details via Telegram. The process was cumbersome and depended on a yearly student representative to manually update the booking records.
 
 ## Solution
 
-Our booking system will allow anyone to submit a booking request via the home page of the booking system. Admins will be able to login with accounts and view the list of all submitted bookings, and choose which are the ones to be approved. The updated request will be reflected on the timetable displayed on the homepage.
+Book4U solves this problem by offering an automated booking system accessible from its homepage. Users can easily submit booking requests, and administrators can log in to review and approve submitted bookings. The approved bookings are then reflected in the timetable displayed on the homepage, creating a seamless and efficient booking experience.
 
-## Features of system
+## Features
 
-Detailed documentation of system features, system and user testing can be found in the [full project documentation](https://docs.google.com/document/d/1lBbl30woSB4tnFogro37Me5kaN_AsGDz815Tp-ZH0GI/edit?usp=sharing)
+For detailed information about the system's features, as well as system and user testing, please refer to the [full project documentation](https://docs.google.com/document/d/1lBbl30woSB4tnFogro37Me5kaN_AsGDz815Tp-ZH0GI/edit?usp=sharing).
 
-## Frameworks used
-Frontend: ReactJS with Bootstrap and MUI, hosted by Firebase
-Backend: Go with Docker and PostgreSQL, hosted by Heroku
+## Technologies Used
+
+- Frontend: Built with ReactJS, utilizing Bootstrap and MUI (Material-UI), and hosted on Firebase.
+- Backend: Developed using Go and Docker, with data stored in PostgreSQL. Hosted on Heroku.
+
+## Motivation
+
+As RC4 residents, we recognized the inefficiencies in the manual booking process for facilities like the Multiple Purpose Sports Hall, seminar rooms, and function rooms. Our motivation was to simplify and enhance this process for the benefit of students by creating a user-friendly and automated booking system.
+
+
+## License
+
+Book4U is released under the [MIT License](LICENSE).
+
+---
